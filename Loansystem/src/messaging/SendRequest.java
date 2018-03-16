@@ -54,12 +54,9 @@ public class SendRequest {
             destination = (Destination) jndiContext.lookup("myFirstDestination");
             producer = session.createProducer(destination);
 
-            String body = "Hello, this is my first message!"; //or serialize an object!  
-            // create a text message
-            Message msg = session.createTextMessage(body);
-            ObjectMessage omsg = session.createObjectMessage(request);
+            Message msg = session.createTextMessage(request.toString());
             // send the message     
-            producer.send(omsg);
+            producer.send(msg);
 
         } catch (NamingException | JMSException e) {
             e.printStackTrace();

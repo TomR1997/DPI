@@ -33,16 +33,14 @@ public class JMSBankFrame extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					JMSBankFrame frame = new JMSBankFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		EventQueue.invokeLater(() -> {
+                    try {
+                        JMSBankFrame frame = new JMSBankFrame();
+                        frame.setVisible(true);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
 	}
 
 	/**
@@ -93,18 +91,16 @@ public class JMSBankFrame extends JFrame {
 		tfReply.setColumns(10);
 		
 		JButton btnSendReply = new JButton("send reply");
-		btnSendReply.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				RequestReply<BankInterestRequest, BankInterestReply> rr = list.getSelectedValue();
-				double interest = Double.parseDouble((tfReply.getText()));
-				BankInterestReply reply = new BankInterestReply(interest,"ABN AMRO");
-				if (rr!= null && reply != null){
-					rr.setReply(reply);
-	                list.repaint();
-					// todo: sent JMS message with the reply to Loan Broker
-				}
-			}
-		});
+		btnSendReply.addActionListener((ActionEvent e) -> {
+                    RequestReply<BankInterestRequest, BankInterestReply> rr = list.getSelectedValue();
+                    double interest = Double.parseDouble((tfReply.getText()));
+                    BankInterestReply reply = new BankInterestReply(interest,"ABN AMRO");
+                    if (rr!= null && reply != null){
+                        rr.setReply(reply);
+                        list.repaint();
+                        // todo: sent JMS message with the reply to Loan Broker
+                    }
+                });
 		GridBagConstraints gbc_btnSendReply = new GridBagConstraints();
 		gbc_btnSendReply.anchor = GridBagConstraints.NORTHWEST;
 		gbc_btnSendReply.gridx = 4;
