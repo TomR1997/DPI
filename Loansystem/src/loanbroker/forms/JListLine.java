@@ -2,7 +2,7 @@ package loanbroker.forms;
 
 
 import abnamro.models.*;
-import model.loan.LoanRequest;
+import loanbroker.models.LoanRequest;
 
 /**
  * This class represents one line in the JList in Loan Broker.

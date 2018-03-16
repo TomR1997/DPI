@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import model.loan.LoanRequest;
+import loanbroker.models.LoanRequest;
 
 
 public class LoanBrokerFrame extends JFrame {

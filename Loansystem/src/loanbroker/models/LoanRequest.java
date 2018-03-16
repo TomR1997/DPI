@@ -1,4 +1,4 @@
-package model.loan;
+package loanbroker.models;
 
 /**
  *
