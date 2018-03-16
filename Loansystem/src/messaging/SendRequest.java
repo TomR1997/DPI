@@ -14,10 +14,12 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import loanbroker.models.LoanRequest;
 
 /**
  *
@@ -32,7 +34,7 @@ public class SendRequest {
     private Destination destination;
     private Session session;
 
-    public void sendMessage() {
+    public void sendMessage(LoanRequest request) {
         try {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
@@ -53,10 +55,11 @@ public class SendRequest {
             producer = session.createProducer(destination);
 
             String body = "Hello, this is my first message!"; //or serialize an object!  
-            // create a text message  
+            // create a text message
             Message msg = session.createTextMessage(body);
+            ObjectMessage omsg = session.createObjectMessage(request);
             // send the message     
-            producer.send(msg);
+            producer.send(omsg);
 
         } catch (NamingException | JMSException e) {
             e.printStackTrace();

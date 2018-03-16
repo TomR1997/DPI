@@ -128,9 +128,9 @@ public class LoanClientFrame extends JFrame {
                 int time = Integer.parseInt(tfTime.getText());
 
                 LoanRequest request = new LoanRequest(ssn, amount, time);
-                listModel.addElement(new RequestReply<LoanRequest, LoanReply>(request, null));
+                listModel.addElement(new RequestReply<>(request, null));
                 // to do:  send the JMS with request to Loan Broker
-                sendRequest.sendMessage();
+                sendRequest.sendMessage(request);
             }
         });
         GridBagConstraints gbc_btnQueue = new GridBagConstraints();

@@ -15,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 import loanbroker.models.LoanRequest;
+import messaging.ReceiveRequest;
 
 
 public class LoanBrokerFrame extends JFrame {
@@ -26,6 +27,7 @@ public class LoanBrokerFrame extends JFrame {
 	private JPanel contentPane;
 	private DefaultListModel<JListLine> listModel = new DefaultListModel<JListLine>();
 	private JList<JListLine> list;
+        private static ReceiveRequest receiveRequest = new ReceiveRequest();
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -33,6 +35,7 @@ public class LoanBrokerFrame extends JFrame {
 				try {
 					LoanBrokerFrame frame = new LoanBrokerFrame();
 					frame.setVisible(true);
+                                        receiveRequest.receiveMessage();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

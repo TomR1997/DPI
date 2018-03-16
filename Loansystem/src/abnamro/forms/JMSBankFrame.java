@@ -71,7 +71,7 @@ public class JMSBankFrame extends JFrame {
 		gbc_scrollPane.gridy = 0;
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
-		JList<RequestReply<BankInterestRequest, BankInterestReply>> list = new JList<RequestReply<BankInterestRequest, BankInterestReply>>(listModel);
+		JList<RequestReply<BankInterestRequest, BankInterestReply>> list = new JList<>(listModel);
 		scrollPane.setViewportView(list);
 		
 		JLabel lblNewLabel = new JLabel("type reply");

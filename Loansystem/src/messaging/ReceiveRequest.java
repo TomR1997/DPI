@@ -12,7 +12,9 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -23,13 +25,13 @@ import javax.naming.NamingException;
  * @author Tomt
  */
 public class ReceiveRequest {
+
     private Connection connection; // to connect to the JMS
     private Session session; // session for creating consumers
 
     private Destination receiveDestination; //reference to a queue/topic destination
     private MessageConsumer consumer; // for receiving messages
 
-    
     public void receiveMessage() {
         try {
             Properties props = new Properties();
@@ -50,10 +52,23 @@ public class ReceiveRequest {
             receiveDestination = (Destination) jndiContext.lookup("myFirstDestination");
             consumer = session.createConsumer(receiveDestination);
 
+            connection.start();
+
         } catch (NamingException ex) {
             Logger.getLogger(ReceiveRequest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JMSException ex) {
             Logger.getLogger(ReceiveRequest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        try {
+            this.consumer.setMessageListener(new MessageListener() {
+                @Override
+                public void onMessage(Message msg) {
+                    System.out.println("received message: " + msg);
+                }
+            });
+        } catch (JMSException ex){
+            ex.printStackTrace();
         }
     }
 }
