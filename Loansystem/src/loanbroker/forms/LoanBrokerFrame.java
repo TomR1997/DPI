@@ -25,6 +25,7 @@ import javax.swing.border.EmptyBorder;
 import loanbroker.models.LoanRequest;
 import messaging.ConsumerMessengerListener;
 import messaging.ReceiveRequest;
+import messaging.SendRequest;
 
 public class LoanBrokerFrame extends JFrame implements MessageListener {
 
@@ -33,6 +34,7 @@ public class LoanBrokerFrame extends JFrame implements MessageListener {
     private DefaultListModel<JListLine> listModel = new DefaultListModel<>();
     private JList<JListLine> list;
     private static ReceiveRequest receiveRequest = new ReceiveRequest();
+    private SendRequest sendRequest = new SendRequest();
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
@@ -112,7 +114,7 @@ public class LoanBrokerFrame extends JFrame implements MessageListener {
         TextMessage textMessage = (TextMessage) msg;
         try{
             System.out.println("received: " + textMessage.getText());
-            createBankInterestRequest((TextMessage)msg);
+            sendRequest.sendMessage(createBankInterestRequest((TextMessage)msg));
         } catch (JMSException ex){
             ex.printStackTrace();
         }
@@ -128,8 +130,12 @@ public class LoanBrokerFrame extends JFrame implements MessageListener {
         BankInterestRequest request = null;
         if (data != null){
             request = new BankInterestRequest(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+            add(createLoanRequest(data), request);
         }
-        
         return request;
+    }
+    
+    private LoanRequest createLoanRequest(String[] data){
+        return new LoanRequest(Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
     }
 }

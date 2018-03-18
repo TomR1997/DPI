@@ -37,6 +37,6 @@ public class BankInterestReply {
     }
 
     public String toString() {
-        return "quote=" + this.bankId + " interest=" + this.interest;
+        return this.bankId + ";" + this.interest;
     }
 }

@@ -42,7 +42,7 @@ public class ReceiveRequest {
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
             // connect to the Destination called “myFirstChannel”
             // queue or topic: “queue.myFirstDestination” or “topic.myFirstDestination”
-            props.put(("queue.myFirstDestination"), " myFirstDestination");
+            props.put(("queue.loanRequest"), " loanRequest");
 
             Context jndiContext = new InitialContext(props);
             ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext
@@ -51,7 +51,7 @@ public class ReceiveRequest {
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // connect to the receiver destination
-            receiveDestination = (Destination) jndiContext.lookup("myFirstDestination");
+            receiveDestination = (Destination) jndiContext.lookup("loanRequest");
             consumer = session.createConsumer(receiveDestination);
             listener = new ConsumerMessengerListener();
             consumer.setMessageListener(listener);
@@ -61,16 +61,63 @@ public class ReceiveRequest {
         } catch (NamingException | JMSException ex) {
             Logger.getLogger(ReceiveRequest.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void receiveBankInterestRequest() {
+        try {
+            Properties props = new Properties();
+            props.setProperty(Context.INITIAL_CONTEXT_FACTORY,
+                    "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+            props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
+            // connect to the Destination called “myFirstChannel”
+            // queue or topic: “queue.myFirstDestination” or “topic.myFirstDestination”
+            props.put(("queue.bankInterestRequest"), " bankInterestRequest");
 
-        /*try {
-            this.consumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message msg) {
-                    System.out.println("received message: " + msg);
-                }
-            });
-        } catch (JMSException ex) {
-            ex.printStackTrace();
-        }*/
+            Context jndiContext = new InitialContext(props);
+            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext
+                    .lookup("ConnectionFactory");
+            connection = connectionFactory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            // connect to the receiver destination
+            receiveDestination = (Destination) jndiContext.lookup("bankInterestRequest");
+            consumer = session.createConsumer(receiveDestination);
+            listener = new ConsumerMessengerListener();
+            consumer.setMessageListener(listener);
+
+            connection.start();
+
+        } catch (NamingException | JMSException ex) {
+            Logger.getLogger(ReceiveRequest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void receiveBankInterestReply() {
+        try {
+            Properties props = new Properties();
+            props.setProperty(Context.INITIAL_CONTEXT_FACTORY,
+                    "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+            props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
+            // connect to the Destination called “myFirstChannel”
+            // queue or topic: “queue.myFirstDestination” or “topic.myFirstDestination”
+            props.put(("queue.bankInterestReply"), "bankInterestReply");
+
+            Context jndiContext = new InitialContext(props);
+            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext
+                    .lookup("ConnectionFactory");
+            connection = connectionFactory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            // connect to the receiver destination
+            receiveDestination = (Destination) jndiContext.lookup("bankInterestReply");
+            consumer = session.createConsumer(receiveDestination);
+            listener = new ConsumerMessengerListener();
+            consumer.setMessageListener(listener);
+
+            connection.start();
+
+        } catch (NamingException | JMSException ex) {
+            Logger.getLogger(ReceiveRequest.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
