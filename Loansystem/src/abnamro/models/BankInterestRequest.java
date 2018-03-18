@@ -41,6 +41,6 @@ public class BankInterestRequest {
 
     @Override
     public String toString() {
-        return " amount=" + amount + " time=" + time;
+        return amount + ";" + time;
     }
 }

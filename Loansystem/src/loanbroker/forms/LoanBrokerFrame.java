@@ -6,11 +6,14 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
+import javax.jms.TextMessage;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -23,7 +26,7 @@ import loanbroker.models.LoanRequest;
 import messaging.ConsumerMessengerListener;
 import messaging.ReceiveRequest;
 
-public class LoanBrokerFrame extends JFrame {
+public class LoanBrokerFrame extends JFrame implements MessageListener {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
@@ -102,5 +105,31 @@ public class LoanBrokerFrame extends JFrame {
             rr.setBankReply(bankReply);
             list.repaint();
         }
+    }
+
+    @Override
+    public void onMessage(Message msg) {
+        TextMessage textMessage = (TextMessage) msg;
+        try{
+            System.out.println("received: " + textMessage.getText());
+            createBankInterestRequest((TextMessage)msg);
+        } catch (JMSException ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    private BankInterestRequest createBankInterestRequest(TextMessage msg){
+        String[] data = null;
+        try {
+            data = msg.getText().split(";");
+        } catch (JMSException ex) {
+            Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        BankInterestRequest request = null;
+        if (data != null){
+            request = new BankInterestRequest(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+        }
+        
+        return request;
     }
 }

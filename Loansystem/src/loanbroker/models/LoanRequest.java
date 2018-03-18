@@ -54,6 +54,6 @@ public class LoanRequest implements Serializable {
 
     @Override
     public String toString() {
-        return "ssn=" + String.valueOf(ssn) + " amount=" + String.valueOf(amount) + " time=" + String.valueOf(time);
+        return String.valueOf(ssn) + ";" + String.valueOf(amount) + ";" + String.valueOf(time);
     }
 }
