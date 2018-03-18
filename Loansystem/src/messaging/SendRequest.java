@@ -21,6 +21,7 @@ import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import loanbroker.models.LoanReply;
 import loanbroker.models.LoanRequest;
 
 /**
@@ -112,6 +113,35 @@ public class SendRequest {
 
             // connect to the sender destination
             destination = (Destination) jndiContext.lookup("bankInterestReply");
+            producer = session.createProducer(destination);
+
+            Message msg = session.createTextMessage(reply.toString());
+            // send the message     
+            producer.send(msg);
+
+        } catch (NamingException | JMSException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void sendMessage(LoanReply reply) {
+        try {
+            Properties props = new Properties();
+            props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+            props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
+
+            // connect to the Destination called “myFirstChannel”
+            // queue or topic: “queue.myFirstDestination” or “topic.myFirstDestination”
+            props.put(("queue.loanReply"), "loanReply");
+
+            Context jndiContext = new InitialContext(props);
+            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext
+                    .lookup("ConnectionFactory");
+            connection = connectionFactory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            // connect to the sender destination
+            destination = (Destination) jndiContext.lookup("loanReply");
             producer = session.createProducer(destination);
 
             Message msg = session.createTextMessage(reply.toString());

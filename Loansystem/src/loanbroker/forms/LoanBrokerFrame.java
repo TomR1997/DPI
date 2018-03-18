@@ -21,6 +21,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import loanbroker.models.LoanReply;
 
 import loanbroker.models.LoanRequest;
 import messaging.ConsumerMessengerListener;
@@ -114,7 +115,20 @@ public class LoanBrokerFrame extends JFrame implements MessageListener {
         TextMessage textMessage = (TextMessage) msg;
         try{
             System.out.println("received: " + textMessage.getText());
-            sendRequest.sendMessage(createBankInterestRequest((TextMessage)msg));
+            sendRequest.sendMessage(createBankInterestRequest(textMessage));
+            receiveRequest.receiveBankInterestReply();
+            MessageListener listener = new MessageListener(){
+                @Override
+                public void onMessage(Message msg) {
+                    TextMessage textMessage = (TextMessage) msg;
+                    try {
+                        System.out.println("received: " + textMessage.getText());
+                        sendRequest.sendMessage(createLoanReply(textMessage));
+                    } catch (JMSException ex) {
+                        Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }                
+            };
         } catch (JMSException ex){
             ex.printStackTrace();
         }
@@ -137,5 +151,19 @@ public class LoanBrokerFrame extends JFrame implements MessageListener {
     
     private LoanRequest createLoanRequest(String[] data){
         return new LoanRequest(Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+    }
+    
+    private LoanReply createLoanReply(TextMessage msg){
+        String[] data = null;
+        try {
+            data = msg.getText().split(";");
+        } catch (JMSException ex) {
+            Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        LoanReply reply = null;
+        if (data != null){
+            reply = new LoanReply(Double.parseDouble(data[0]), data[1]);
+        }
+        return reply;
     }
 }
