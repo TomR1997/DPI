@@ -1,6 +1,5 @@
 package loanbroker.models;
 
-import java.io.Serializable;
 import messaging.IMessageRequest;
 
 /**
