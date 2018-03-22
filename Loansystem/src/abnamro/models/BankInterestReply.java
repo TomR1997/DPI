@@ -1,11 +1,13 @@
 package abnamro.models;
 
+import messaging.IMessageRequest;
+
 /**
  * This class stores information about the bank reply
  *  to a loan request of the specific client
  * 
  */
-public class BankInterestReply {
+public class BankInterestReply implements IMessageRequest{
 
     private double interest; // the loan interest
     private String bankId; // the nunique quote Id

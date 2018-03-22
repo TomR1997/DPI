@@ -1,11 +1,13 @@
 package loanbroker.models;
 
+import messaging.IMessageRequest;
+
 /**
  *
  * This class stores all information about a bank offer
  * as a response to a client loan request.
  */
-public class LoanReply {
+public class LoanReply implements IMessageRequest{
 
         private double interest; // the interest that the bank offers
         private String bankID; // the unique quote identification

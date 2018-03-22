@@ -1,6 +1,7 @@
 package loanbroker.models;
 
 import java.io.Serializable;
+import messaging.IMessageRequest;
 
 /**
  *
@@ -8,7 +9,7 @@ import java.io.Serializable;
  * get a loan.
  *
  */
-public class LoanRequest implements Serializable {
+public class LoanRequest implements IMessageRequest {
 
     private int ssn; // unique client number.
     private int amount; // the ammount to borrow

@@ -5,7 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -18,15 +17,18 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import abnamro.models.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.jms.TextMessage;
 import loanbroker.forms.LoanBrokerFrame;
-import messaging.ReceiveRequest;
-import messaging.SendRequest;
+import messaging.IMessageRequest;
+import messaging.MessageRequest;
 import requestreply.RequestReply;
 
 public class JMSBankFrame extends JFrame implements MessageListener {
@@ -38,8 +40,7 @@ public class JMSBankFrame extends JFrame implements MessageListener {
     private JPanel contentPane;
     private JTextField tfReply;
     private DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>> listModel = new DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>>();
-    private static ReceiveRequest receiveRequest = new ReceiveRequest();
-    private SendRequest sendRequest = new SendRequest();
+    private Map<BankInterestRequest, String> bankInterestRequests = new HashMap<>();
 
     /**
      * Launch the application.
@@ -49,7 +50,6 @@ public class JMSBankFrame extends JFrame implements MessageListener {
             try {
                 JMSBankFrame frame = new JMSBankFrame();
                 frame.setVisible(true);
-                receiveRequest.receiveBankInterestRequest();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -103,6 +103,27 @@ public class JMSBankFrame extends JFrame implements MessageListener {
         contentPane.add(tfReply, gbc_tfReply);
         tfReply.setColumns(10);
 
+        new MessageRequest().receive(BankInterestRequest.class, new MessageListener() {
+            @Override
+            public void onMessage(Message msg) {
+                try {
+                    if (msg instanceof ObjectMessage) {
+                        IMessageRequest msgObj = (IMessageRequest) ((ObjectMessage) msg).getObject();
+                        if (msgObj instanceof BankInterestRequest) {
+                            //Receive bank interest request
+                            BankInterestRequest bankInterestRequest = (BankInterestRequest) msgObj;
+                            add(bankInterestRequest);
+                            bankInterestRequests.put(bankInterestRequest, msg.getJMSCorrelationID());
+                            System.out.println("Receiving: " + bankInterestRequest);
+                        }
+                    }
+                } catch (JMSException ex) {
+                    Logger.getLogger(JMSBankFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        );
+
         JButton btnSendReply = new JButton("send reply");
         btnSendReply.addActionListener((ActionEvent e) -> {
             RequestReply<BankInterestRequest, BankInterestReply> rr = list.getSelectedValue();
@@ -111,7 +132,8 @@ public class JMSBankFrame extends JFrame implements MessageListener {
             if (rr != null && reply != null) {
                 rr.setReply(reply);
                 list.repaint();
-                sendRequest.sendMessage(reply);
+                new MessageRequest().send(reply, bankInterestRequests.get(rr.getRequest()));
+                System.out.println("Sending: " + reply);
             }
         });
         GridBagConstraints gbc_btnSendReply = new GridBagConstraints();
@@ -131,8 +153,8 @@ public class JMSBankFrame extends JFrame implements MessageListener {
             ex.printStackTrace();
         }
     }
-    
-    private BankInterestRequest createBankInterestRequest(TextMessage msg){
+
+    private BankInterestRequest createBankInterestRequest(TextMessage msg) {
         String[] data = null;
         try {
             data = msg.getText().split(";");
@@ -140,10 +162,15 @@ public class JMSBankFrame extends JFrame implements MessageListener {
             Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
         BankInterestRequest request = null;
-        if (data != null){
+        if (data != null) {
             request = new BankInterestRequest(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
         }
         return request;
+    }
+
+    public void add(BankInterestRequest bankInterestRequest) {
+        RequestReply<BankInterestRequest, BankInterestReply> rr = new RequestReply<>(bankInterestRequest, null);
+        listModel.addElement(rr);
     }
 
 }

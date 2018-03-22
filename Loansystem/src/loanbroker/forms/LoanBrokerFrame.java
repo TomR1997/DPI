@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.JMSException;
@@ -24,25 +26,22 @@ import javax.swing.border.EmptyBorder;
 import loanbroker.models.LoanReply;
 
 import loanbroker.models.LoanRequest;
-import messaging.ConsumerMessengerListener;
-import messaging.ReceiveRequest;
-import messaging.SendRequest;
+import messaging.IMessageRequest;
+import messaging.MessageRequest;
 
-public class LoanBrokerFrame extends JFrame implements MessageListener {
+public class LoanBrokerFrame extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
     private DefaultListModel<JListLine> listModel = new DefaultListModel<>();
     private JList<JListLine> list;
-    private static ReceiveRequest receiveRequest = new ReceiveRequest();
-    private SendRequest sendRequest = new SendRequest();
+    private Map<String, LoanRequest> loanRequests = new HashMap<>();
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
                 LoanBrokerFrame frame = new LoanBrokerFrame();
                 frame.setVisible(true);
-                receiveRequest.receiveMessage();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -53,6 +52,54 @@ public class LoanBrokerFrame extends JFrame implements MessageListener {
      * Create the frame.
      */
     public LoanBrokerFrame() {
+        new MessageRequest().receive(LoanRequest.class, new MessageListener() {
+            @Override
+            public void onMessage(Message msg) {
+                try {
+                    if (msg instanceof ObjectMessage) {
+                        IMessageRequest msgRequest = (IMessageRequest) ((ObjectMessage) msg).getObject();
+                        if (msgRequest instanceof LoanRequest) {
+                            //Receive loan request
+                            LoanRequest loanRequest = (LoanRequest) msgRequest;
+                            loanRequests.put(msg.getJMSMessageID(), loanRequest);
+                            add(loanRequest);
+                            System.out.println("Receiving: " + loanRequest);
+                            //Send bank interest request
+                            BankInterestRequest bankInterestRequest = new BankInterestRequest(loanRequest.getTime(), loanRequest.getAmount());
+                            add(loanRequest, bankInterestRequest);
+                            new MessageRequest().send(bankInterestRequest, msg.getJMSMessageID());
+                            System.out.println("Sending: " + bankInterestRequest);
+                        }
+                    }
+                } catch (JMSException ex) {
+                    Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        new MessageRequest().receive(BankInterestReply.class, new MessageListener() {
+            @Override
+            public void onMessage(Message msg) {
+                try {
+                    if (msg instanceof ObjectMessage) {
+                        IMessageRequest msgObj = (IMessageRequest) ((ObjectMessage) msg).getObject();
+                        if (msgObj instanceof BankInterestReply) {
+                            //Receive bank interest reply
+                            BankInterestReply bankInterestReply = (BankInterestReply) msgObj;
+                            add(loanRequests.get(msg.getJMSCorrelationID()), bankInterestReply);
+                            list.repaint();
+                            System.out.println("Receiving: " + bankInterestReply);
+                            //Send loan reply
+                            LoanReply loanReply = new LoanReply(bankInterestReply.getInterest(), bankInterestReply.getQuoteId());
+                            new MessageRequest().send(loanReply, msg.getJMSCorrelationID());
+                            System.out.println("Sending: " + loanReply);
+                        }
+                    }
+                } catch (JMSException ex) {
+                    Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         setTitle("Loan Broker");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 450, 300);
@@ -108,62 +155,5 @@ public class LoanBrokerFrame extends JFrame implements MessageListener {
             rr.setBankReply(bankReply);
             list.repaint();
         }
-    }
-
-    @Override
-    public void onMessage(Message msg) {
-        TextMessage textMessage = (TextMessage) msg;
-        try{
-            System.out.println("received: " + textMessage.getText());
-            sendRequest.sendMessage(createBankInterestRequest(textMessage));
-            receiveRequest.receiveBankInterestReply();
-            MessageListener listener = new MessageListener(){
-                @Override
-                public void onMessage(Message msg) {
-                    TextMessage textMessage = (TextMessage) msg;
-                    try {
-                        System.out.println("received: " + textMessage.getText());
-                        sendRequest.sendMessage(createLoanReply(textMessage));
-                    } catch (JMSException ex) {
-                        Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }                
-            };
-        } catch (JMSException ex){
-            ex.printStackTrace();
-        }
-    }
-    
-    private BankInterestRequest createBankInterestRequest(TextMessage msg){
-        String[] data = null;
-        try {
-            data = msg.getText().split(";");
-        } catch (JMSException ex) {
-            Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        BankInterestRequest request = null;
-        if (data != null){
-            request = new BankInterestRequest(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
-            add(createLoanRequest(data), request);
-        }
-        return request;
-    }
-    
-    private LoanRequest createLoanRequest(String[] data){
-        return new LoanRequest(Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
-    }
-    
-    private LoanReply createLoanReply(TextMessage msg){
-        String[] data = null;
-        try {
-            data = msg.getText().split(";");
-        } catch (JMSException ex) {
-            Logger.getLogger(LoanBrokerFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        LoanReply reply = null;
-        if (data != null){
-            reply = new LoanReply(Double.parseDouble(data[0]), data[1]);
-        }
-        return reply;
     }
 }

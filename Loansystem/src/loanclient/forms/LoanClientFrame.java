@@ -6,7 +6,15 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -20,7 +28,8 @@ import javax.swing.border.EmptyBorder;
 
 import requestreply.RequestReply;
 import loanbroker.models.*;
-import messaging.SendRequest;
+import messaging.MessageRequest;
+import messaging.IMessageRequest;
 
 public class LoanClientFrame extends JFrame {
 
@@ -38,7 +47,7 @@ public class LoanClientFrame extends JFrame {
     private JLabel lblNewLabel_1;
     private JTextField tfTime;
 
-    private SendRequest sendRequest = new SendRequest();
+    private Map<String, LoanRequest> loanRequests = new HashMap<>();
 
     /**
      * Create the frame.
@@ -110,15 +119,38 @@ public class LoanClientFrame extends JFrame {
         tfTime.setColumns(10);
 
         JButton btnQueue = new JButton("send loan request");
+        new MessageRequest().receive(LoanReply.class, new MessageListener() {
+            @Override
+            public void onMessage(Message msg) {
+                try {
+                    if (msg instanceof ObjectMessage) {
+                        IMessageRequest msgRequest = (IMessageRequest) ((ObjectMessage) msg).getObject();
+                        if (msgRequest instanceof LoanReply) {
+                            LoanReply loanReply = (LoanReply) msgRequest;
+                            System.out.println("Receiving: " + loanReply.toString());
+                            RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(loanRequests.get(msg.getJMSCorrelationID()));
+                            requestReply.setReply(loanReply);
+                            requestReplyList.repaint();
+                        }
+                    }
+                } catch (JMSException ex) {
+                    Logger.getLogger(LoanClientFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         btnQueue.addActionListener((ActionEvent arg0) -> {
             int ssn = Integer.parseInt(tfSSN.getText());
             int amount = Integer.parseInt(tfAmount.getText());
             int time = Integer.parseInt(tfTime.getText());
-            
+
             LoanRequest request = new LoanRequest(ssn, amount, time);
             listModel.addElement(new RequestReply<>(request, null));
-            // to do:  send the JMS with request to Loan Broker
-            sendRequest.sendMessage(request);
+            System.out.println("Sending: " + request.toString());
+            //Send message
+            String key = new MessageRequest().send(request);
+            //Save association
+            loanRequests.put(key, request);
+
         });
         GridBagConstraints gbc_btnQueue = new GridBagConstraints();
         gbc_btnQueue.insets = new Insets(0, 0, 5, 5);
@@ -165,7 +197,7 @@ public class LoanClientFrame extends JFrame {
         EventQueue.invokeLater(() -> {
             try {
                 LoanClientFrame frame = new LoanClientFrame();
-                
+
                 frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
