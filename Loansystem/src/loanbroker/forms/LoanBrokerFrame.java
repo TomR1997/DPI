@@ -14,7 +14,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -22,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import loanbroker.models.LoanReply;
-
 import loanbroker.models.LoanRequest;
 import messaging.IMessageRequest;
 import messaging.MessageRequest;

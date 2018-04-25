@@ -13,7 +13,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -23,11 +22,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-
-import requestreply.RequestReply;
 import loanbroker.models.*;
-import messaging.MessageRequest;
 import messaging.IMessageRequest;
+import messaging.MessageRequest;
+import requestreply.RequestReply;
 
 public class LoanClientFrame extends JFrame {
 
