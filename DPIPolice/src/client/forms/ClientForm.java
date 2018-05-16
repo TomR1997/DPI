@@ -70,7 +70,7 @@ public class ClientForm extends JFrame {
 
         //scrollPane.setViewportView(list);
 
-        JLabel locationLbl = new JLabel("enter location");
+        JLabel locationLbl = new JLabel("location");
         GridBagConstraints gbc_locatiobLbl = new GridBagConstraints();
         gbc_locatiobLbl.anchor = GridBagConstraints.EAST;
         gbc_locatiobLbl.insets = new Insets(0, 0, 0, 5);
@@ -88,7 +88,7 @@ public class ClientForm extends JFrame {
         contentPane.add(locationReply, gbc_locationLbl);
         locationReply.setColumns(10);
         
-        JLabel licenceLbl = new JLabel("enter licenceplate");
+        JLabel licenceLbl = new JLabel("licenceplate");
         GridBagConstraints gbc_licenceLbl = new GridBagConstraints();
         gbc_licenceLbl.anchor = GridBagConstraints.EAST;
         gbc_licenceLbl.insets = new Insets(0, 0, 0, 5);
