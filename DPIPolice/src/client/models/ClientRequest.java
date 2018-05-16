@@ -10,13 +10,23 @@ package client.models;
  * @author Tomt
  */
 public class ClientRequest {
+    private String clientName;
     private String location;
     private String licenceplate;
     
-    public ClientRequest(String location, String licenceplate){
+    public ClientRequest(String location, String licenceplate, String clientName){
         super();
         this.location = location;
         this.location = licenceplate;
+        this.clientName = clientName;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 
     public String getLocation() {

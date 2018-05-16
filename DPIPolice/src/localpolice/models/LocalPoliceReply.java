@@ -3,29 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client.models;
+package localpolice.models;
 
 /**
  *
  * @author Tomt
  */
-public class ClientReply {
+public class LocalPoliceReply {
     private boolean found;
     private String location;
     private String localPoliceId;
 
-    public ClientReply(boolean found, String localPoliceId, String location) {
+    public LocalPoliceReply(boolean found, String localPoliceId, String location) {
         super();
         this.found = found;
         this.localPoliceId = localPoliceId;
-        this.location = location;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
         this.location = location;
     }
     
@@ -44,9 +36,13 @@ public class ClientReply {
     public void setLocalPoliceId(String localPoliceId) {
         this.localPoliceId = localPoliceId;
     }
-    
-    @Override
-    public String toString(){
-        return "found=" + found + " localPoliceId=" + localPoliceId;
+
+    public String getLocation() {
+        return location;
     }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
 }
