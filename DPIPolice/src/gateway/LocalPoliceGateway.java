@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import localpolice.models.LocalPoliceReply;
 import localpolice.models.LocalPoliceRequest;
 import message.MessageReceiver;
 import message.MessageSender;
@@ -41,6 +42,10 @@ public class LocalPoliceGateway implements Observer, Observable {
         LocalPoliceRequest request = (LocalPoliceRequest) serializer.StringToRequest(content);
         correlations.put(request, correlationId);
         notifyObservers(request);
+    }
+    
+    public void sendReply(LocalPoliceRequest request, LocalPoliceReply reply){
+        sender.sendMessage(serializer.ReplyToString(reply), correlations.get(request));
     }
     
     @Override
