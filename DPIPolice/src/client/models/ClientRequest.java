@@ -47,6 +47,6 @@ public class ClientRequest {
     
     @Override
     public String toString() {
-        return "location=" + location + " licenceplate=" + licenceplate;
+        return "Request;;" + location + ";;" + licenceplate + ";;" + clientName;
     }
 }

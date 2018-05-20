@@ -43,7 +43,7 @@ public class MessageReceiver implements Observable{
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:8161");
-            props.put("queue." + queue, topic); // "queue.requestQueue" "bankRequest"
+            props.put("queue." + queue, topic);
 
             Context jndiContext = new InitialContext(props);
             ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext
@@ -57,7 +57,7 @@ public class MessageReceiver implements Observable{
             /*consumer.setMessageListener(new MessageListener() {
             }*/
 
-            connection.start(); // this is needed to start receiving messages
+            connection.start();
             System.out.println("Starting");
 
         } catch (NamingException | JMSException e) {
@@ -81,6 +81,8 @@ public class MessageReceiver implements Observable{
 
     @Override
     public void notifyObservers(Object... args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (Observer o : observers) {
+            o.update(args);
+        }
     }
 }

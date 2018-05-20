@@ -6,10 +6,13 @@
 package message;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.Context;
@@ -34,8 +37,6 @@ public class MessageSender {
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:8161");
 
-            // connect to the Destination called “myFirstChannel”
-            // queue or topic: “queue.myFirstDestination” or “topic.myFirstDestination”
             props.put(("queue." + queue), topic);
 
             Context jndiContext = new InitialContext(props);
@@ -54,10 +55,25 @@ public class MessageSender {
     }
 
     public String sendMessage(String content) {
-        return null;
+        try {
+            Message msg = session.createTextMessage(content);
+            producer.send(msg);
+            return msg.getJMSMessageID();
+        } catch (JMSException ex) {
+            Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
     public String sendMessage(String content, String correlationID) {
-        return null;
+        try{
+            Message msg = session.createTextMessage(content);
+            msg.setJMSCorrelationID(correlationID);
+            producer.send(msg);
+            return msg.getJMSMessageID();
+        } catch (JMSException ex) {
+            Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 }
