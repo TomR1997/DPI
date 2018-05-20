@@ -23,12 +23,12 @@ public class ClientGateway implements Observer, Observable {
     private List<Observer> observers = new ArrayList<>();
     private MessageReceiver receiver;
     private MessageSender sender;
-    private ClientSerializer serializer;
+    private ISerializer serializer;
 
     public ClientGateway(String receiverTopic, String senderTopic) {
-        this.receiver = new MessageReceiver("destination", receiverTopic);
-        this.sender = new MessageSender("destination", senderTopic);
-        this.serializer = new ClientSerializer();
+        receiver = new MessageReceiver("destination", receiverTopic);
+        sender = new MessageSender("destination", senderTopic);
+        serializer = new ClientSerializer();
         
         receiver.addObserver(this);
     }

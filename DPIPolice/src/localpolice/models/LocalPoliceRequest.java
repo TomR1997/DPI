@@ -35,4 +35,9 @@ public class LocalPoliceRequest {
         this.licencePlate = licencePlate;
     }
     
+    @Override
+    public String toString(){
+        return "Request;;" + location + ";;" + licencePlate;
+    }
+    
 }

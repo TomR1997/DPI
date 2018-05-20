@@ -45,4 +45,9 @@ public class LocalPoliceReply {
         this.location = location;
     }
     
+    @Override
+    public String toString(){
+        return "Reply;;" + found + ";;" + localPoliceId + ";;" + location;
+    }
+    
 }

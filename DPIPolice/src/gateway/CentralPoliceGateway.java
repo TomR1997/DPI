@@ -18,30 +18,26 @@ import observer.Observer;
  */
 public class CentralPoliceGateway implements Observer, Observable {
 
-    private List<Observer> observers = new ArrayList<>();
-    private MessageReceiver receiver;
-    private MessageSender sender;
-
     @Override
     public void update(Object... args) {
-
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void addObserver(Observer o) {
-        observers.add(o);
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void removeObserver(Observer o) {
-        observers.remove(o);
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void notifyObservers(Object... args) {
-        for (Observer o : observers) {
-            o.update(args);
-        }
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    
 
 }

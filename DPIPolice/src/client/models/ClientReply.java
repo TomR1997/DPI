@@ -47,6 +47,6 @@ public class ClientReply {
     
     @Override
     public String toString(){
-        return "Request;;" + found + ";;" + localPoliceId + ";;" + location;
+        return "Reply;;" + found + ";;" + localPoliceId + ";;" + location;
     }
 }
