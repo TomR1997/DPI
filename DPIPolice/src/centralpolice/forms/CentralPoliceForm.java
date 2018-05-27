@@ -1,5 +1,6 @@
 package centralpolice.forms;
 
+import client.models.ClientRequest;
 import gateway.RecipientManager;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -11,6 +12,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import localpolice.models.LocalPoliceReply;
+import localpolice.models.LocalPoliceRequest;
 import observer.Observer;
 import message.JListLine;
 
@@ -61,8 +64,48 @@ public class CentralPoliceForm extends JFrame implements Observer {
         manager.addObserver(this);
     }
 
+    private JListLine getRequestReply(ClientRequest request) {
+
+        for (int i = 0; i < listModel.getSize(); i++) {
+            JListLine rr = listModel.get(i);
+            if (rr.getClientRequest() == request) {
+                return rr;
+            }
+        }
+
+        return null;
+    }
+
+    public void add(ClientRequest clientRequest) {
+        listModel.addElement(new JListLine(clientRequest));
+    }
+
+    public void add(ClientRequest clientRequest, LocalPoliceRequest localPoliceRequest) {
+        JListLine rr = getRequestReply(clientRequest);
+        if (rr != null && localPoliceRequest != null) {
+            rr.setLocalPoliceRequest(localPoliceRequest);
+            list.repaint();
+        }
+    }
+
+    public void add(ClientRequest clientRequest, LocalPoliceReply localPoliceReply) {
+        JListLine rr = getRequestReply(clientRequest);
+        if (rr != null && localPoliceReply != null) {
+            rr.setLocalPoliceReply(localPoliceReply);;
+            list.repaint();
+        }
+    }
+
     @Override
     public void update(Object... args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (args.length == 1) {
+            ClientRequest request = (ClientRequest) args[0];
+            add(request);
+        }
+        else if (args.length == 2) {
+            ClientRequest request = (ClientRequest) args[0];
+            LocalPoliceReply reply = (LocalPoliceReply) args[1];
+            add(request, reply);
+        }
     }
 }
