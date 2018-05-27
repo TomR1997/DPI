@@ -141,7 +141,6 @@ public class ClientForm extends JFrame implements Observer {
                 String licenceplate = licenceReply.getText();
                 String location = locationReply.getText();
                 String name = clientNameReply.getText();
-                System.out.println(licenceplate + location + name);
                 ClientRequest request = new ClientRequest(location, licenceplate, name);
                 listModel.addElement(new RequestReply<>(request, null));
                 gateway.sendRequest(request);
