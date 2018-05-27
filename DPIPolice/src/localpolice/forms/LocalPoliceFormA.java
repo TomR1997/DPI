@@ -1,19 +1,25 @@
 package localpolice.forms;
 
+import gateway.LocalPoliceGateway;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.DefaultListModel;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import localpolice.models.LocalPoliceReply;
+import localpolice.models.LocalPoliceRequest;
+import message.RequestReply;
 
 import observer.Observer;
 
@@ -21,8 +27,11 @@ public class LocalPoliceFormA extends JFrame implements Observer {
 
     private static final long serialVersionUID = 1L;
     private JPanel contentPane;
-    private JTextField tfReply;
-    //private DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>> listModel = new DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>>();
+    private JTextField foundReply;
+    private JTextField locationReply;
+    private DefaultListModel<RequestReply<LocalPoliceRequest, LocalPoliceReply>> listModel = new DefaultListModel<>();
+    private final String localPoliceName = "localPoliceRequestA";
+    private LocalPoliceGateway gateway = new LocalPoliceGateway("0-100", "LocalPoliceA", localPoliceName);
 
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
@@ -60,30 +69,57 @@ public class LocalPoliceFormA extends JFrame implements Observer {
         gbc_scrollPane.gridy = 0;
         contentPane.add(scrollPane, gbc_scrollPane);
 
-        //JList<RequestReply<BankInterestRequest, BankInterestReply>> list = new JList<RequestReply<BankInterestRequest, BankInterestReply>>(listModel);
-        //scrollPane.setViewportView(list);
+        JList<RequestReply<LocalPoliceRequest, LocalPoliceReply>> list = new JList<>(listModel);
+        scrollPane.setViewportView(list);
 
-        JLabel lblNewLabel = new JLabel("type reply");
-        GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-        gbc_lblNewLabel.anchor = GridBagConstraints.EAST;
-        gbc_lblNewLabel.insets = new Insets(0, 0, 0, 5);
-        gbc_lblNewLabel.gridx = 0;
-        gbc_lblNewLabel.gridy = 1;
-        contentPane.add(lblNewLabel, gbc_lblNewLabel);
+        JLabel lblFound = new JLabel("found");
+        GridBagConstraints gbc_lblFound = new GridBagConstraints();
+        gbc_lblFound.anchor = GridBagConstraints.EAST;
+        gbc_lblFound.insets = new Insets(0, 0, 0, 5);
+        gbc_lblFound.gridx = 0;
+        gbc_lblFound.gridy = 1;
+        contentPane.add(lblFound, gbc_lblFound);
 
-        tfReply = new JTextField();
-        GridBagConstraints gbc_tfReply = new GridBagConstraints();
-        gbc_tfReply.gridwidth = 2;
-        gbc_tfReply.insets = new Insets(0, 0, 0, 5);
-        gbc_tfReply.fill = GridBagConstraints.HORIZONTAL;
-        gbc_tfReply.gridx = 1;
-        gbc_tfReply.gridy = 1;
-        contentPane.add(tfReply, gbc_tfReply);
-        tfReply.setColumns(10);
+        foundReply = new JTextField();
+        GridBagConstraints gbc_foundReply = new GridBagConstraints();
+        gbc_foundReply.gridwidth = 2;
+        gbc_foundReply.insets = new Insets(0, 0, 0, 5);
+        gbc_foundReply.fill = GridBagConstraints.HORIZONTAL;
+        gbc_foundReply.gridx = 1;
+        gbc_foundReply.gridy = 1;
+        contentPane.add(foundReply, gbc_foundReply);
+        foundReply.setColumns(10);
+
+        JLabel lblLocation = new JLabel("location");
+        GridBagConstraints gbc_lblLocation = new GridBagConstraints();
+        gbc_lblLocation.anchor = GridBagConstraints.EAST;
+        gbc_lblLocation.insets = new Insets(0, 0, 0, 5);
+        gbc_lblLocation.gridx = 0;
+        gbc_lblLocation.gridy = 4;
+        contentPane.add(lblLocation, gbc_lblLocation);
+
+        locationReply = new JTextField();
+        GridBagConstraints gbc_locationReply = new GridBagConstraints();
+        gbc_locationReply.gridwidth = 2;
+        gbc_locationReply.insets = new Insets(0, 0, 0, 5);
+        gbc_locationReply.fill = GridBagConstraints.HORIZONTAL;
+        gbc_locationReply.gridx = 1;
+        gbc_locationReply.gridy = 4;
+        contentPane.add(locationReply, gbc_locationReply);
+        locationReply.setColumns(10);
 
         JButton btnSendReply = new JButton("send reply");
         btnSendReply.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                RequestReply<LocalPoliceRequest, LocalPoliceReply> rr = list.getSelectedValue();
+                boolean found = Boolean.parseBoolean(foundReply.getText());
+                String location = locationReply.getText();
+                LocalPoliceReply reply = new LocalPoliceReply(found, location, localPoliceName);
+                if (rr != null && reply != null) {
+                    rr.setReply(reply);
+                    list.repaint();
+                    gateway.sendReply(rr.getRequest(), rr.getReply());
+                }
             }
         });
         GridBagConstraints gbc_btnSendReply = new GridBagConstraints();
@@ -92,12 +128,18 @@ public class LocalPoliceFormA extends JFrame implements Observer {
         gbc_btnSendReply.gridy = 1;
         contentPane.add(btnSendReply, gbc_btnSendReply);
 
-        //gateway.addObserver(this);
+        gateway.addObserver(this);
+    }
+
+    public void add(LocalPoliceRequest request) {
+        RequestReply<LocalPoliceRequest, LocalPoliceReply> rr = new RequestReply<>(request, null);
+        listModel.addElement(rr);
     }
 
     @Override
     public void update(Object... args) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        LocalPoliceRequest request = (LocalPoliceRequest) args[0];
+        add(request);
     }
 
 }
