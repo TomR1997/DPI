@@ -35,7 +35,7 @@ public class MessageSender {
         try {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-            props.setProperty(Context.PROVIDER_URL, "tcp://localhost:8161");
+            props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
 
             props.put(("queue." + queue), topic);
 

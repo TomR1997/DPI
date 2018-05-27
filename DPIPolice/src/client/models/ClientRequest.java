@@ -17,7 +17,7 @@ public class ClientRequest {
     public ClientRequest(String location, String licenceplate, String clientName){
         super();
         this.location = location;
-        this.location = licenceplate;
+        this.licenceplate = licenceplate;
         this.clientName = clientName;
     }
 
