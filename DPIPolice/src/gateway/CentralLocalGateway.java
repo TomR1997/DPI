@@ -5,11 +5,10 @@
  */
 package gateway;
 
-import client.models.ClientReply;
-import client.models.ClientRequest;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import localpolice.models.LocalPoliceReply;
+import localpolice.models.LocalPoliceRequest;
 import message.MessageReceiver;
 import message.MessageSender;
 import observer.Observable;
@@ -19,36 +18,34 @@ import observer.Observer;
  *
  * @author Tomt
  */
-public class ClientGateway implements Observer, Observable {
+public class CentralLocalGateway implements Observer, Observable {
 
     private List<Observer> observers = new ArrayList<>();
-    private MessageReceiver receiver;
     private MessageSender sender;
+    private MessageReceiver receiver;
     private ISerializer serializer;
-    private HashMap<String, ClientRequest> correlations = new HashMap<>();
 
-    public ClientGateway(String receiverTopic, String senderTopic) {
-        receiver = new MessageReceiver("destination", receiverTopic);
-        sender = new MessageSender("destination", senderTopic);
-        serializer = new ClientSerializer();
+    public CentralLocalGateway(String senderTopic, String receiverTopic) {
+        this.sender = new MessageSender("destination", senderTopic);
+        this.receiver = new MessageReceiver("destination", receiverTopic);
+        this.serializer = new LocalPoliceSerializer();
 
         receiver.addObserver(this);
     }
 
-    public void sendRequest(ClientRequest request) {
-        String correlationId = sender.sendMessage(serializer.RequestToString(request));
-        correlations.put(correlationId, request);
+    public void sendRequest(LocalPoliceRequest request, String correlationId) {
+        sender.sendMessage(serializer.RequestToString(request), correlationId);
     }
 
     public void receiveReply(String content, String correlationId) {
-        ClientRequest request = (ClientRequest) serializer.StringToRequest(content);
-        notifyObservers(request, correlationId);
+        LocalPoliceReply reply = (LocalPoliceReply) serializer.StringToReply(content);
+        notifyObservers(reply, correlationId);
     }
 
     @Override
     public void update(Object... args) {
         String[] result = new String[]{args[0].toString(), args[1].toString()};
-        if (result[0].startsWith("Request")) {
+        if (result[0].startsWith("Reply")) {
             receiveReply(result[0], result[1]);
         }
     }
@@ -69,4 +66,5 @@ public class ClientGateway implements Observer, Observable {
             o.update(args);
         }
     }
+
 }
