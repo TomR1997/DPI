@@ -1,18 +1,25 @@
 package centralpolice.forms;
 
+import gateway.RecipientManager;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import observer.Observer;
+import message.JListLine;
 
-public class CentralPoliceForm extends JFrame {
+public class CentralPoliceForm extends JFrame implements Observer {
 
-    private static final long serialVersionUID = 1L;
+    private DefaultListModel<JListLine> listModel = new DefaultListModel<>();
+    private JList<JListLine> list;
     private JPanel contentPane;
+    private RecipientManager manager = new RecipientManager();
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
@@ -25,7 +32,7 @@ public class CentralPoliceForm extends JFrame {
         });
     }
 
-    public CentralPoliceForm() {   
+    public CentralPoliceForm() {
         setTitle("Central police");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 450, 300);
@@ -47,5 +54,15 @@ public class CentralPoliceForm extends JFrame {
         gbc_scrollPane.gridx = 0;
         gbc_scrollPane.gridy = 0;
         contentPane.add(scrollPane, gbc_scrollPane);
+
+        list = new JList<>(listModel);
+        scrollPane.setViewportView(list);
+
+        manager.addObserver(this);
+    }
+
+    @Override
+    public void update(Object... args) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
