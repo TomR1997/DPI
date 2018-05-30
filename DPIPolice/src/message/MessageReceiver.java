@@ -27,7 +27,7 @@ import observer.Observer;
  *
  * @author Tomt
  */
-public class MessageReceiver implements Observable{
+public class MessageReceiver implements Observable {
 
     private Connection connection;
     private Session session;
@@ -54,8 +54,32 @@ public class MessageReceiver implements Observable{
             receiveDestination = (Destination) jndiContext.lookup(queue);
             consumer = session.createConsumer(receiveDestination);
 
-            /*consumer.setMessageListener(new MessageListener() {
-            }*/
+            consumer.setMessageListener(new MessageListener() {
+
+                @Override
+                public void onMessage(Message msg) {
+                    TextMessage tmsg = (TextMessage) msg;
+                    String messageText;
+                    try {
+                        messageText = tmsg.getText();
+                        String messageID;
+
+                        if (msg.getJMSCorrelationID() == null || msg.getJMSCorrelationID().isEmpty()) {
+                            messageID = msg.getJMSMessageID();
+                            System.out.println("cor not found");
+                        } else {
+                            messageID = msg.getJMSCorrelationID();
+                            System.out.println("cor found");
+                        }
+
+                        System.out.println("received message: " + messageText + " - " + messageID);
+                        notifyObservers(messageText, messageID);
+                    } catch (JMSException ex) {
+                        ex.printStackTrace();
+                    }
+
+                }
+            });
 
             connection.start();
             System.out.println("Starting");

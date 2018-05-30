@@ -8,7 +8,7 @@ package message;
 import localpolice.models.LocalPoliceReply;
 
 public class LocalPoliceReplyManager {
-    
+
     private int expectedReplyCount;
     private int replyCount = 0;
     private LocalPoliceReply bestReply = null;
@@ -16,16 +16,18 @@ public class LocalPoliceReplyManager {
     public LocalPoliceReplyManager(int expectedReplyCount) {
         this.expectedReplyCount = expectedReplyCount;
     }
-    
-    public void newReply(LocalPoliceReply reply){
-        bestReply = reply;
+
+    public void newReply(LocalPoliceReply reply) {
+        if (reply.isFound()) {
+            bestReply = reply;
+        }
         replyCount++;
     }
 
-    public boolean isCompleted(){
+    public boolean isCompleted() {
         return replyCount >= expectedReplyCount;
     }
-    
+
     public LocalPoliceReply getBestReply() {
         return bestReply;
     }

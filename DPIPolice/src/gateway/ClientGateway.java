@@ -5,7 +5,6 @@
  */
 package gateway;
 
-import client.models.ClientReply;
 import client.models.ClientRequest;
 import java.util.ArrayList;
 import java.util.HashMap;

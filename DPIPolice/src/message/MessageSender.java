@@ -69,6 +69,7 @@ public class MessageSender {
         try{
             Message msg = session.createTextMessage(content);
             msg.setJMSCorrelationID(correlationID);
+            System.out.println("Msg send: "+ msg);
             producer.send(msg);
             return msg.getJMSMessageID();
         } catch (JMSException ex) {

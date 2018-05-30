@@ -91,7 +91,7 @@ public class CentralPoliceForm extends JFrame implements Observer {
     public void add(ClientRequest clientRequest, LocalPoliceReply localPoliceReply) {
         JListLine rr = getRequestReply(clientRequest);
         if (rr != null && localPoliceReply != null) {
-            rr.setLocalPoliceReply(localPoliceReply);;
+            rr.setLocalPoliceReply(localPoliceReply);
             list.repaint();
         }
     }

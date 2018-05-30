@@ -3,6 +3,7 @@ package gateway;
 import client.models.ClientReply;
 import client.models.ClientRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import localpolice.models.LocalPoliceReply;
@@ -26,7 +27,7 @@ public class RecipientManager implements Observable, Observer {
 
     public RecipientManager() {
         this.receiver = new MessageReceiver("destination", "registration");
-        gateway = new CentralPoliceGateway("loanRequest", "loanReply");
+        gateway = new CentralPoliceGateway("clientRequest", "clientReply");
 
         receiver.addObserver(this);
         gateway.addObserver(this);
@@ -34,6 +35,7 @@ public class RecipientManager implements Observable, Observer {
 
     public void receiveRegistraion(String registration) {
         String[] strings = registration.split(";;");
+        System.out.println("registration received: "+Arrays.toString(strings));
         Recipient r = new Recipient(strings[1], strings[2], strings[3], strings[4]);
         recipients.add(r);
         r.addObserverToGateway(this);
@@ -41,6 +43,7 @@ public class RecipientManager implements Observable, Observer {
 
     public void receiveRequest(ClientRequest request, String correlationID) {
         correlations.put(correlationID, request);
+        System.out.println("request received:" + request.toString());
         notifyObservers(request);
         sendRequestToRecipients(new LocalPoliceRequest(request.getLocation(), request.getLicenceplate()), correlationID);
     }
@@ -98,7 +101,7 @@ public class RecipientManager implements Observable, Observer {
             receiveReply((LocalPoliceReply) args[0], args[1].toString());
         } else if (args[0] instanceof ClientRequest) {
             receiveRequest((ClientRequest) args[0], args[1].toString());
-        } else if (args[0].toString().startsWith("REGISTRATION")) {
+        } else if (args[0].toString().startsWith("Registration")) {
             receiveRegistraion(args[0].toString());
         }
     }

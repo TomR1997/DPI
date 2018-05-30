@@ -38,7 +38,7 @@ public class ClientForm extends JFrame implements Observer {
     private DefaultListModel<RequestReply<ClientRequest, ClientReply>> listModel = new DefaultListModel<>();
     private JList<RequestReply<ClientRequest, ClientReply>> requestReplyList;
 
-    private ClientGateway gateway = new ClientGateway("clientrequest", "clientreply");
+    private ClientGateway gateway = new ClientGateway("clientRequest", "clientReply");
 
     /**
      * Launch the application.
