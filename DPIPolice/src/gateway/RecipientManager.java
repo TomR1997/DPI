@@ -35,15 +35,13 @@ public class RecipientManager implements Observable, Observer {
 
     public void receiveRegistraion(String registration) {
         String[] strings = registration.split(";;");
-        System.out.println("registration received: "+Arrays.toString(strings));
-        Recipient r = new Recipient(strings[1], strings[2], strings[3], strings[4]);
+        Recipient r = new Recipient(strings[0], strings[1], strings[2], strings[3]);
         recipients.add(r);
         r.addObserverToGateway(this);
     }
 
     public void receiveRequest(ClientRequest request, String correlationID) {
         correlations.put(correlationID, request);
-        System.out.println("request received:" + request.toString());
         notifyObservers(request);
         sendRequestToRecipients(new LocalPoliceRequest(request.getLocation(), request.getLicenceplate()), correlationID);
     }
@@ -51,7 +49,7 @@ public class RecipientManager implements Observable, Observer {
     public void sendRequestToRecipients(LocalPoliceRequest request, String correlationID){
         int expectedResultCount = 0;
         for(Recipient r : recipients){
-            r.sendRequestToBank(request, correlationID);
+            r.sendRequestToLocalPolice(request, correlationID);
             expectedResultCount++;
         }
         
@@ -70,7 +68,8 @@ public class RecipientManager implements Observable, Observer {
         if(localPoliceReplyManager.isCompleted()){
             LocalPoliceReply bestReply = localPoliceReplyManager.getBestReply();
             notifyObservers(correlations.get(correlationID), bestReply);
-            sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocalPoliceId(), bestReply.getLocation()), correlationID);
+            System.out.println(bestReply.isFound());
+            sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocation(), bestReply.getLocalPoliceId()), correlationID);
         }
     }
     
@@ -104,6 +103,5 @@ public class RecipientManager implements Observable, Observer {
         } else if (args[0].toString().startsWith("Registration")) {
             receiveRegistraion(args[0].toString());
         }
-        receiveRequest((ClientRequest) args[0], args[1].toString());
     }
 }

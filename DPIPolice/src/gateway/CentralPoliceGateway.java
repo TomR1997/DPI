@@ -48,7 +48,6 @@ public class CentralPoliceGateway implements Observer, Observable {
         if (result[0].startsWith("Request")) {
             receiveRequest(result[0], result[1]);
         }
-        receiveRequest(result[0], result[1]);
     }
 
     @Override

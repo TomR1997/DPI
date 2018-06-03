@@ -15,7 +15,7 @@ public class Recipient {
         gateway = new CentralLocalGateway(senderTopic, receiverTopic);
     }
     
-    public void sendRequestToBank(LocalPoliceRequest request, String correlationID){
+    public void sendRequestToLocalPolice(LocalPoliceRequest request, String correlationID){
         gateway.sendRequest(request, correlationID);
     }
     
