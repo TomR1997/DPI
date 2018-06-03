@@ -57,7 +57,7 @@ public class RecipientManager implements Observable, Observer {
         
         if (expectedResultCount == 0){
             notifyObservers(correlations.get(correlationID), new LocalPoliceReply(false, "", "None"));
-            sendReplyToClient(new ClientReply(false, "", "None"), correlationID);
+            sendReplyToClient(new ClientReply(false, "None", "None"), correlationID);
             return;
         }
         
@@ -69,9 +69,12 @@ public class RecipientManager implements Observable, Observer {
         localPoliceReplyManager.newReply(reply);
         if(localPoliceReplyManager.isCompleted()){
             LocalPoliceReply bestReply = localPoliceReplyManager.getBestReply();
-            notifyObservers(correlations.get(correlationID), bestReply);
-            System.out.println(bestReply.isFound());
-            sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocation(), bestReply.getLocalPoliceId()), correlationID);
+            if (bestReply == null){
+                //init livepolice
+            } else {
+                notifyObservers(correlations.get(correlationID), bestReply);
+                sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocation(), bestReply.getLocalPoliceId()), correlationID);
+            }
         }
     }
     
