@@ -104,5 +104,6 @@ public class RecipientManager implements Observable, Observer {
         } else if (args[0].toString().startsWith("Registration")) {
             receiveRegistraion(args[0].toString());
         }
+        receiveRequest((ClientRequest) args[0], args[1].toString());
     }
 }

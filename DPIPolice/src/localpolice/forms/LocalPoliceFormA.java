@@ -31,7 +31,7 @@ public class LocalPoliceFormA extends JFrame implements Observer {
     private JTextField locationReply;
     private DefaultListModel<RequestReply<LocalPoliceRequest, LocalPoliceReply>> listModel = new DefaultListModel<>();
     private final String localPoliceName = "localPoliceRequestA";
-    private LocalPoliceGateway gateway = new LocalPoliceGateway("Eindhoven", "LocalPoliceA", localPoliceName);
+    private LocalPoliceGateway gateway = new LocalPoliceGateway("Eindhoven", "LocalPoliceReplyA", localPoliceName);
 
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {

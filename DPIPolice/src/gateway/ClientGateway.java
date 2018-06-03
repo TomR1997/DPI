@@ -26,7 +26,7 @@ public class ClientGateway implements Observer, Observable {
     private ISerializer serializer;
     private HashMap<String, ClientRequest> correlations = new HashMap<>();
 
-    public ClientGateway(String receiverTopic, String senderTopic) {
+    public ClientGateway(String senderTopic, String receiverTopic) {
         receiver = new MessageReceiver("destination", receiverTopic);
         sender = new MessageSender("destination", senderTopic);
         serializer = new ClientSerializer();

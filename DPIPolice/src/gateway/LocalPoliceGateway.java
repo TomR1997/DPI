@@ -30,7 +30,7 @@ public class LocalPoliceGateway implements Observer, Observable {
     private Map<LocalPoliceRequest, String> correlations = new HashMap<>();
 
     public LocalPoliceGateway(String registration, String senderTopic, String receiverTopic) {
-        register = new MessageSender("destination", registration);
+        register = new MessageSender("destination", "registration");
         register.sendMessage("Registration;;" + registration + ";;" + receiverTopic + ";;" + senderTopic);
         sender = new MessageSender("destination", senderTopic);
         receiver = new MessageReceiver("destination", receiverTopic);

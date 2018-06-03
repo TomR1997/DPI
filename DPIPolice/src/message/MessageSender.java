@@ -58,6 +58,7 @@ public class MessageSender {
         try {
             Message msg = session.createTextMessage(content);
             producer.send(msg);
+            System.out.println("Message sent: " + content);
             return msg.getJMSMessageID();
         } catch (JMSException ex) {
             Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, ex);
@@ -69,7 +70,7 @@ public class MessageSender {
         try{
             Message msg = session.createTextMessage(content);
             msg.setJMSCorrelationID(correlationID);
-            System.out.println("Msg send: "+ msg);
+            System.out.println("Message sent: " + content);
             producer.send(msg);
             return msg.getJMSMessageID();
         } catch (JMSException ex) {
