@@ -15,6 +15,10 @@ public class Recipient {
         gateway = new CentralLocalGateway(senderTopic, receiverTopic);
     }
     
+    public boolean isQualified(Recipient recipient, LocalPoliceRequest request){
+        return recipient.location.equalsIgnoreCase(request.getLocation());
+    }
+    
     public void sendRequestToLocalPolice(LocalPoliceRequest request, String correlationID){
         gateway.sendRequest(request, correlationID);
     }

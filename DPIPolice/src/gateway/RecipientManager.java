@@ -49,8 +49,10 @@ public class RecipientManager implements Observable, Observer {
     public void sendRequestToRecipients(LocalPoliceRequest request, String correlationID){
         int expectedResultCount = 0;
         for(Recipient r : recipients){
-            r.sendRequestToLocalPolice(request, correlationID);
-            expectedResultCount++;
+            if(r.isQualified(r, request)){
+                r.sendRequestToLocalPolice(request, correlationID);
+                expectedResultCount++;
+            }
         }
         
         if (expectedResultCount == 0){
