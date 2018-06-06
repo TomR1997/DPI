@@ -1,6 +1,6 @@
 package livepolice.forms;
 
-import gateway.RecipientManager;
+import gateway.LivePoliceGateway;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,15 +11,18 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import livepolice.models.LivePoliceReply;
+import livepolice.models.LivePoliceRequest;
 import observer.Observer;
 import message.JListLine;
+import message.RequestReply;
 
 public class LivePoliceForm extends JFrame implements Observer {
 
-    private DefaultListModel<JListLine> listModel = new DefaultListModel<>();
+    private DefaultListModel<RequestReply<LivePoliceRequest, LivePoliceReply>> listModel = new DefaultListModel<>();
     private JList<JListLine> list;
     private JPanel contentPane;
-    private RecipientManager manager = new RecipientManager();
+    private LivePoliceGateway gateway = new LivePoliceGateway("livePoliceRequest", "livePoliceReply");
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
@@ -54,15 +57,23 @@ public class LivePoliceForm extends JFrame implements Observer {
         gbc_scrollPane.gridx = 0;
         gbc_scrollPane.gridy = 0;
         contentPane.add(scrollPane, gbc_scrollPane);
+        
+        JList<RequestReply<LivePoliceRequest, LivePoliceReply>> list = new JList<>(listModel);
+        scrollPane.setViewportView(list);
 
-//        list = new JList<>(listModel);
-//        scrollPane.setViewportView(list);
-//
-//        manager.addObserver(this);
+        //list = new JList<>(listModel);
+        //scrollPane.setViewportView(list);
+
     }
 
     @Override
     public void update(Object... args) {
-
+        LivePoliceRequest request = (LivePoliceRequest) args[0];
+        add(request);
+    }
+    
+    public void add (LivePoliceRequest request){
+        RequestReply<LivePoliceRequest, LivePoliceReply> rr  = new RequestReply<>(request, null);
+        listModel.addElement(rr);
     }
 }

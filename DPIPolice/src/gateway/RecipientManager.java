@@ -3,9 +3,9 @@ package gateway;
 import client.models.ClientReply;
 import client.models.ClientRequest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import livepolice.models.LivePoliceRequest;
 import localpolice.models.LocalPoliceReply;
 import localpolice.models.LocalPoliceRequest;
 import message.LocalPoliceReplyManager;
@@ -24,10 +24,12 @@ public class RecipientManager implements Observable, Observer {
 
     private List<Recipient> recipients = new ArrayList<>();
     private CentralPoliceGateway gateway;
+    private CentralLiveGateway liveGateway;
 
     public RecipientManager() {
         this.receiver = new MessageReceiver("destination", "registration");
         gateway = new CentralPoliceGateway("clientRequest", "clientReply");
+        liveGateway = new CentralLiveGateway("livePoliceRequest", "livePoliceReply");
 
         receiver.addObserver(this);
         gateway.addObserver(this);
@@ -56,7 +58,7 @@ public class RecipientManager implements Observable, Observer {
         }
         
         if (expectedResultCount == 0){
-            notifyObservers(correlations.get(correlationID), new LocalPoliceReply(false, "", "None"));
+            notifyObservers(correlations.get(correlationID), new LocalPoliceReply(false, "", "None", "None"));
             sendReplyToClient(new ClientReply(false, "None", "None"), correlationID);
             return;
         }
@@ -70,7 +72,8 @@ public class RecipientManager implements Observable, Observer {
         if(localPoliceReplyManager.isCompleted()){
             LocalPoliceReply bestReply = localPoliceReplyManager.getBestReply();
             if (bestReply == null){
-                //init livepolice
+                notifyObservers(correlations.get(correlationID), reply);
+                sendLivePoliceRequest(new LivePoliceRequest(reply.getLicencePlate()), correlationID);
             } else {
                 notifyObservers(correlations.get(correlationID), bestReply);
                 sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocation(), bestReply.getLocalPoliceId()), correlationID);
@@ -80,6 +83,10 @@ public class RecipientManager implements Observable, Observer {
     
     public void sendReplyToClient(ClientReply reply, String correlationID){
         gateway.sendReply(reply, correlationID);
+    }
+    
+    public void sendLivePoliceRequest(LivePoliceRequest request, String correlationID){
+        liveGateway.sendRequest(request, correlationID);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class LocalPoliceSerializer implements ISerializer<LocalPoliceRequest, Lo
     @Override
     public LocalPoliceReply StringToReply(String string) {
         String[] strings = string.split(";;");
-        return new LocalPoliceReply(Boolean.parseBoolean(strings[1]), strings[2], strings[3]);
+        return new LocalPoliceReply(Boolean.parseBoolean(strings[1]), strings[2], strings[3], strings[4]);
     }
     
 }
