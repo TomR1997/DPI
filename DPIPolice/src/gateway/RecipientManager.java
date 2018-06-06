@@ -73,7 +73,6 @@ public class RecipientManager implements Observable, Observer {
         if(localPoliceReplyManager.isCompleted()){
             LocalPoliceReply bestReply = localPoliceReplyManager.getBestReply();
             if (bestReply == null){
-                notifyObservers(correlations.get(correlationID), reply);
                 sendLivePoliceRequest(new LivePoliceRequest(reply.getLicencePlate()), correlationID);
             } else {
                 notifyObservers(correlations.get(correlationID), bestReply);

@@ -14,13 +14,12 @@ import javax.swing.border.EmptyBorder;
 import livepolice.models.LivePoliceReply;
 import livepolice.models.LivePoliceRequest;
 import observer.Observer;
-import message.JListLine;
 import message.RequestReply;
 
 public class LivePoliceForm extends JFrame implements Observer {
 
     private DefaultListModel<RequestReply<LivePoliceRequest, LivePoliceReply>> listModel = new DefaultListModel<>();
-    private JList<JListLine> list;
+    private JList<RequestReply<LivePoliceRequest, LivePoliceReply>> list;
     private JPanel contentPane;
     private LivePoliceGateway gateway = new LivePoliceGateway("livePoliceRequest", "livePoliceReply");
 
@@ -58,12 +57,10 @@ public class LivePoliceForm extends JFrame implements Observer {
         gbc_scrollPane.gridy = 0;
         contentPane.add(scrollPane, gbc_scrollPane);
         
-        JList<RequestReply<LivePoliceRequest, LivePoliceReply>> list = new JList<>(listModel);
+        list = new JList<>(listModel);
         scrollPane.setViewportView(list);
 
-        //list = new JList<>(listModel);
-        //scrollPane.setViewportView(list);
-
+        gateway.addObserver(this);
     }
 
     @Override
