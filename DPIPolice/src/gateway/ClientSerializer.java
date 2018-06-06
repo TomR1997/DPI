@@ -33,7 +33,7 @@ public class ClientSerializer implements ISerializer<ClientRequest, ClientReply>
     @Override
     public ClientReply StringToReply(String string) {
         String[] strings  = string.split(";;");
-        return new ClientReply(Boolean.getBoolean(strings[1]), strings[2], strings[3]);
+        return new ClientReply(Boolean.parseBoolean(strings[1]), strings[2], strings[3]);
     }
 
    

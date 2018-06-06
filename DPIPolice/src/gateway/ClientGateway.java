@@ -5,6 +5,7 @@
  */
 package gateway;
 
+import client.models.ClientReply;
 import client.models.ClientRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,16 +41,20 @@ public class ClientGateway implements Observer, Observable {
     }
 
     public void receiveReply(String content, String correlationId) {
-        ClientRequest request = (ClientRequest) serializer.StringToRequest(content);
-        notifyObservers(request, correlationId);
+        ClientRequest request = correlations.get(correlationId);
+        ClientReply reply = (ClientReply) serializer.StringToReply(content);
+        notifyObservers(request, reply);
     }
 
     @Override
     public void update(Object... args) {
         String[] result = new String[]{args[0].toString(), args[1].toString()};
-        if (result[0].startsWith("Request")) {
-            receiveReply(result[0], result[1]);
-        }
+        receiveReply(result[0], result[1]);
+//        if (result[0].startsWith("Request")) {
+//            receiveReply(result[0], result[1]);
+//        } else if(result[0].startsWith("Reply")){
+//            receiveReply(result[0], result[1]);
+//        }
     }
 
     @Override

@@ -114,7 +114,7 @@ public class LocalPoliceFormB extends JFrame implements Observer {
                 RequestReply<LocalPoliceRequest, LocalPoliceReply> rr = list.getSelectedValue();
                 boolean found = Boolean.parseBoolean(foundReply.getText());
                 String location = locationReply.getText();
-                LocalPoliceReply reply = new LocalPoliceReply(found, location, localPoliceName);
+                LocalPoliceReply reply = new LocalPoliceReply(found, location, localPoliceName, rr.getRequest().getLicencePlate());
                 if (rr != null && reply != null) {
                     rr.setReply(reply);
                     list.repaint();
