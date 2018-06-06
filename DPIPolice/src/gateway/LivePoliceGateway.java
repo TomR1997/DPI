@@ -37,6 +37,7 @@ public class LivePoliceGateway implements Observer, Observable {
     
     public void receiveRequest(String content, String correlationId){
         LivePoliceRequest request = (LivePoliceRequest) serializer.StringToRequest(content);
+        System.out.println("lpGate: " + request.toString());
         correlations.put(request, correlationId);
         //start scan
         notifyObservers(request);

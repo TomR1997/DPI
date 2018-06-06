@@ -25,7 +25,7 @@ public class CentralLiveGateway implements Observer, Observable {
     private MessageReceiver receiver;
     private ISerializer serializer;
 
-    public CentralLiveGateway(String senderTopic, String receiverTopic) {
+    public CentralLiveGateway(String receiverTopic, String senderTopic) {
         sender = new MessageSender("destination", senderTopic);
         receiver = new MessageReceiver("destination", receiverTopic);
         serializer = new LivePoliceSerializer();

@@ -33,6 +33,7 @@ public class RecipientManager implements Observable, Observer {
 
         receiver.addObserver(this);
         gateway.addObserver(this);
+        liveGateway.addObserver(this);
     }
 
     public void receiveRegistraion(String registration) {
