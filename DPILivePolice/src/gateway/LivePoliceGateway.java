@@ -78,9 +78,9 @@ public class LivePoliceGateway implements Observer, Observable {
         if (!carReplyManager.isFound()) {
             for (Entry<LivePoliceRequest, String> entry : correlations.entrySet()) {
                 if (entry.getValue() == null ? correlationId == null : entry.getValue().equals(correlationId)) {
+                    request = entry.getKey();
                     if (entry.getKey().getLicencePlate().equals(getCarLicencePlate(content))) {
                         carReplyManager.newReply(new LivePoliceReply(true, "Maaskantje", "LocalMaaskantjeA"));
-                        request = entry.getKey();
                         notifyObservers(request, carReplyManager.getBestReply());
                         sendReply(carReplyManager.getBestReply(), correlationId);
                     } else {
@@ -93,7 +93,6 @@ public class LivePoliceGateway implements Observer, Observable {
                 LivePoliceReply notFoundReply = new LivePoliceReply(false, "None", "None");
                 sendReply(notFoundReply, correlationId);
                 notifyObservers(request, notFoundReply);
-                
             }
         }
     }

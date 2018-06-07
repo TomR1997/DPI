@@ -56,7 +56,7 @@ public class LivePoliceForm extends JFrame implements Observer {
         gbc_scrollPane.gridx = 0;
         gbc_scrollPane.gridy = 0;
         contentPane.add(scrollPane, gbc_scrollPane);
-        
+
         list = new JList<>(listModel);
         scrollPane.setViewportView(list);
 
@@ -65,12 +65,34 @@ public class LivePoliceForm extends JFrame implements Observer {
 
     @Override
     public void update(Object... args) {
-        LivePoliceRequest request = (LivePoliceRequest) args[0];
-        add(request);
+        if (args.length == 1) {
+            LivePoliceRequest request = (LivePoliceRequest) args[0];
+            add(request);
+        } else if (args.length == 2) {
+            LivePoliceRequest request = (LivePoliceRequest) args[0];
+            LivePoliceReply reply = (LivePoliceReply) args[1];
+            add(request, reply);
+        }
     }
     
-    public void add (LivePoliceRequest request){
+    public void add(LivePoliceRequest request){
         RequestReply<LivePoliceRequest, LivePoliceReply> rr  = new RequestReply<>(request, null);
         listModel.addElement(rr);
+    }
+    
+    public void add(LivePoliceRequest request, LivePoliceReply reply){
+        RequestReply<LivePoliceRequest, LivePoliceReply> rr = getRequestReply(request);
+        rr.setReply(reply);
+        list.repaint();
+    }
+
+    private RequestReply<LivePoliceRequest, LivePoliceReply> getRequestReply(LivePoliceRequest request) {
+        for (int i = 0; i < listModel.getSize(); i++) {
+            RequestReply<LivePoliceRequest, LivePoliceReply> rr = listModel.get(i);
+            if (rr.getRequest() == request) {
+                return rr;
+            }
+        }
+        return null;
     }
 }
