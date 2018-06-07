@@ -50,11 +50,6 @@ public class ClientGateway implements Observer, Observable {
     public void update(Object... args) {
         String[] result = new String[]{args[0].toString(), args[1].toString()};
         receiveReply(result[0], result[1]);
-//        if (result[0].startsWith("Request")) {
-//            receiveReply(result[0], result[1]);
-//        } else if(result[0].startsWith("Reply")){
-//            receiveReply(result[0], result[1]);
-//        }
     }
 
     @Override

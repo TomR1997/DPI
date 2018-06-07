@@ -5,6 +5,7 @@ import client.models.ClientRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import livepolice.models.LivePoliceReply;
 import livepolice.models.LivePoliceRequest;
 import localpolice.models.LocalPoliceReply;
 import localpolice.models.LocalPoliceRequest;
@@ -76,7 +77,7 @@ public class RecipientManager implements Observable, Observer {
                 sendLivePoliceRequest(new LivePoliceRequest(reply.getLicencePlate()), correlationID);
             } else {
                 notifyObservers(correlations.get(correlationID), bestReply);
-                sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocation(), bestReply.getLocalPoliceId()), correlationID);
+                sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocalPoliceId(), bestReply.getLocation()), correlationID);
             }
         }
     }
@@ -87,6 +88,11 @@ public class RecipientManager implements Observable, Observer {
     
     public void sendLivePoliceRequest(LivePoliceRequest request, String correlationID){
         liveGateway.sendRequest(request, correlationID);
+    }
+    
+    public void receiveLiveReply(LivePoliceReply reply, String correlationId){
+        notifyObservers(correlations.get(correlationId), reply);
+        sendReplyToClient(new ClientReply(reply.isFound(), reply.getLocalPoliceId(), reply.getLocation()), correlationId);
     }
 
     @Override
@@ -114,6 +120,9 @@ public class RecipientManager implements Observable, Observer {
             receiveRequest((ClientRequest) args[0], args[1].toString());
         } else if (args[0].toString().startsWith("Registration")) {
             receiveRegistraion(args[0].toString());
+        } else if (args[0] instanceof LivePoliceReply){
+            receiveLiveReply((LivePoliceReply) args[0], args[1].toString());
         }
     }
+
 }

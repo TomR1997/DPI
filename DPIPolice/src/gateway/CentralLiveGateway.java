@@ -34,7 +34,7 @@ public class CentralLiveGateway implements Observer, Observable {
     }
 
     public void sendRequest(LivePoliceRequest request, String correlationId){
-        sender.sendMessage(serializer.RequestToString(request));
+        sender.sendMessage(serializer.RequestToString(request), correlationId);
     }
     
     public void receiveReply(String content, String correlationId){

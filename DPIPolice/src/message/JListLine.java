@@ -29,7 +29,7 @@ public class JListLine {
     public void setLivePoliceReply(LivePoliceReply livePoliceReply) {
         this.livePoliceReply = livePoliceReply;
     }
-    
+
     public JListLine(ClientRequest clientRequest) {
         this.setClientRequest(clientRequest);
     }
@@ -58,6 +58,10 @@ public class JListLine {
         this.localPoliceReply = localPoliceReply;
     }
 
+//    @Override
+//    public String toString() {
+//        return clientRequest.toString() + " || " + livePoliceReply != null ? livePoliceReply.toString() : ((localPoliceReply != null) ? localPoliceReply.toString() : "waiting for reply...");
+//    }
     @Override
     public String toString() {
         return clientRequest.toString() + " || " + ((localPoliceReply != null) ? localPoliceReply.toString() : "waiting for reply...");

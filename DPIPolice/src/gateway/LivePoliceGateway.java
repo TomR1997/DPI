@@ -38,12 +38,13 @@ public class LivePoliceGateway implements Observer, Observable {
     public void receiveRequest(String content, String correlationId){
         LivePoliceRequest request = (LivePoliceRequest) serializer.StringToRequest(content);
         correlations.put(request, correlationId);
-        //start scan
         notifyObservers(request);
+        sendReply(new LivePoliceReply(true, "smth", request.getLicencePlate()), correlationId);
+        //start scan
     }
     
-    public void sendReply(LivePoliceRequest request, LivePoliceReply reply){
-        sender.sendMessage(serializer.ReplyToString(reply), correlations.get(request));
+    public void sendReply(LivePoliceReply reply, String correlationId){
+        sender.sendMessage(serializer.ReplyToString(reply), correlationId);
     }
     
     @Override
