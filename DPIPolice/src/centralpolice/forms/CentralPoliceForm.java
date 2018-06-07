@@ -66,7 +66,6 @@ public class CentralPoliceForm extends JFrame implements Observer {
     }
 
     private JListLine getRequestReply(ClientRequest request) {
-
         for (int i = 0; i < listModel.getSize(); i++) {
             JListLine rr = listModel.get(i);
             if (rr.getClientRequest() == request) {
@@ -75,7 +74,7 @@ public class CentralPoliceForm extends JFrame implements Observer {
         }
 
         return null;
-    }
+    }   
 
     public void add(ClientRequest clientRequest) {
         listModel.addElement(new JListLine(clientRequest));

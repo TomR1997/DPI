@@ -74,11 +74,14 @@ public class LivePoliceGateway implements Observer, Observable {
 
     public void receiveCar(String content, String correlationId) {
         CarReplyManager carReplyManager = resultsForCorrelationID.get(correlationId);
+        LivePoliceRequest request = null;
         if (!carReplyManager.isFound()) {
             for (Entry<LivePoliceRequest, String> entry : correlations.entrySet()) {
                 if (entry.getValue() == null ? correlationId == null : entry.getValue().equals(correlationId)) {
                     if (entry.getKey().getLicencePlate().equals(getCarLicencePlate(content))) {
                         carReplyManager.newReply(new LivePoliceReply(true, "Maaskantje", "LocalMaaskantjeA"));
+                        request = entry.getKey();
+                        notifyObservers(request, carReplyManager.getBestReply());
                         sendReply(carReplyManager.getBestReply(), correlationId);
                     } else {
                         carReplyManager.newReply(new LivePoliceReply(false, "None", "None"));
@@ -87,7 +90,10 @@ public class LivePoliceGateway implements Observer, Observable {
             }
 
             if (carReplyManager.isCompleted() && !carReplyManager.isFound()) {
-                sendReply(new LivePoliceReply(false, "None", "None"), correlationId);
+                LivePoliceReply notFoundReply = new LivePoliceReply(false, "None", "None");
+                sendReply(notFoundReply, correlationId);
+                notifyObservers(request, notFoundReply);
+                
             }
         }
     }
