@@ -15,6 +15,7 @@ public class CarReplyManager {
     private int expectedReplyCount;
     private int replyCount = 0;
     private LivePoliceReply bestReply = null;
+    private boolean found = false;
 
     public CarReplyManager(int expectedReplyCount) {
         this.expectedReplyCount = expectedReplyCount;
@@ -22,6 +23,7 @@ public class CarReplyManager {
     
     public void newReply(LivePoliceReply reply){
         if (reply.isFound()){
+            found = true;
             bestReply = reply;
         }
         
@@ -34,6 +36,10 @@ public class CarReplyManager {
 
     public LivePoliceReply getBestReply() {
         return bestReply;
+    }
+
+    public boolean isFound() {
+        return found;
     }
     
 }

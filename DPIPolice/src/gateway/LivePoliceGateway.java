@@ -45,13 +45,13 @@ public class LivePoliceGateway implements Observer, Observable {
         serializer = new LivePoliceSerializer();
 
         receiver.addObserver(this);
+        carReceiver.addObserver(this);
     }
 
     public void receiveRequest(String content, String correlationId) {
         LivePoliceRequest request = (LivePoliceRequest) serializer.StringToRequest(content);
         correlations.put(request, correlationId);
         notifyObservers(request);
-        //sendReply(new LivePoliceReply(true, "smth", request.getLicencePlate()), correlationId);
         initLiveScan(correlationId);
     }
 
@@ -60,12 +60,12 @@ public class LivePoliceGateway implements Observer, Observable {
     }
 
     public void initLiveScan(String correlationId) {
+        resultsForCorrelationID.put(correlationId, new CarReplyManager(numberOfCars));
         String licencePlate = "";
         for (int i = 0; i < numberOfCars; i++) {
             licencePlate = Integer.toString(i);
             sendCar("Car;;" + licencePlate, correlationId);
         }
-        resultsForCorrelationID.put(correlationId, new CarReplyManager(numberOfCars));
     }
 
     public void sendCar(String licencePlate, String correlationId) {
@@ -74,25 +74,26 @@ public class LivePoliceGateway implements Observer, Observable {
 
     public void receiveCar(String content, String correlationId) {
         CarReplyManager carReplyManager = resultsForCorrelationID.get(correlationId);
-        for (Entry<LivePoliceRequest, String> entry : correlations.entrySet()) {
-            if (entry.getValue() == null ? correlationId == null : entry.getValue().equals(correlationId)) {
-                if (entry.getKey().getLicencePlate().equals(getCarLicencePlate(content))) {
-                    carReplyManager.newReply(new LivePoliceReply(true, "Maaskantje", "LocalMaaskantjeA"));
-                    sendReply(carReplyManager.getBestReply(), correlationId);
-                } else {
-                    carReplyManager.newReply(new LivePoliceReply(false, "None", "None"));
+        if (!carReplyManager.isFound()) {
+            for (Entry<LivePoliceRequest, String> entry : correlations.entrySet()) {
+                if (entry.getValue() == null ? correlationId == null : entry.getValue().equals(correlationId)) {
+                    if (entry.getKey().getLicencePlate().equals(getCarLicencePlate(content))) {
+                        carReplyManager.newReply(new LivePoliceReply(true, "Maaskantje", "LocalMaaskantjeA"));
+                        sendReply(carReplyManager.getBestReply(), correlationId);
+                    } else {
+                        carReplyManager.newReply(new LivePoliceReply(false, "None", "None"));
+                    }
                 }
             }
-        }
 
-        if (carReplyManager.isCompleted()) {
-            sendReply(new LivePoliceReply(false, "None", "None"), correlationId);
+            if (carReplyManager.isCompleted() && !carReplyManager.isFound()) {
+                sendReply(new LivePoliceReply(false, "None", "None"), correlationId);
+            }
         }
     }
 
     public String getCarLicencePlate(String content) {
         String[] strings = content.split(";;");
-        System.out.println(strings[1]);
         return strings[1];
     }
 
