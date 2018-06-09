@@ -17,6 +17,7 @@ import message.MessageReceiver;
 import message.MessageSender;
 import observer.Observable;
 import observer.Observer;
+import util.TimeStamp;
 
 /**
  *
@@ -33,7 +34,8 @@ public class LivePoliceGateway implements Observer, Observable {
     private ISerializer serializer;
     private Map<LivePoliceRequest, String> correlations = new HashMap<>();
     private Map<String, CarReplyManager> resultsForCorrelationID = new HashMap<>();
-    private int numberOfCars = 5;
+    private int numberOfCars = 2000;
+    private TimeStamp ts;
 
     public LivePoliceGateway(String senderTopic, String receiverTopic) {
         sender = new MessageSender("destination", senderTopic);
@@ -62,6 +64,8 @@ public class LivePoliceGateway implements Observer, Observable {
     public void initLiveScan(String correlationId) {
         resultsForCorrelationID.put(correlationId, new CarReplyManager(numberOfCars));
         String licencePlate = "";
+        ts = new TimeStamp();
+        ts.setBegin("Init live scan start");
         for (int i = 0; i < numberOfCars; i++) {
             licencePlate = Integer.toString(i);
             sendCar("Car;;" + licencePlate, correlationId);
@@ -93,6 +97,8 @@ public class LivePoliceGateway implements Observer, Observable {
                 LivePoliceReply notFoundReply = new LivePoliceReply(false, "None", "None");
                 sendReply(notFoundReply, correlationId);
                 notifyObservers(request, notFoundReply);
+                ts.setEnd("Received all cars");
+                System.out.println(ts.toString());
             }
         }
     }
