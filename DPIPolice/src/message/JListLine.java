@@ -60,8 +60,9 @@ public class JListLine {
 
     @Override
     public String toString() {
-        return clientRequest.toString() + " || " + livePoliceReply != null ? livePoliceReply.toString() : ((localPoliceReply != null) ? localPoliceReply.toString() : "waiting for reply...");
+        return clientRequest.toString() + " || " + (livePoliceReply != null ? livePoliceReply.toString() : ((localPoliceReply != null) ? localPoliceReply.toString() : "waiting for reply..."));
     }
+    
 //    @Override
 //    public String toString() {
 //        return clientRequest.toString() + " || " + ((localPoliceReply != null) ? localPoliceReply.toString() : "waiting for reply...");
