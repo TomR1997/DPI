@@ -18,6 +18,7 @@ import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
  *
@@ -44,6 +45,7 @@ public class MessageSender {
                     .lookup("ConnectionFactory");
             connection = connectionFactory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            //((ActiveMQConnectionFactory)connectionFactory).setUseAsyncSend(true);
 
             // connect to the sender destination
             sendDestination = (Destination) jndiContext.lookup(queue);
