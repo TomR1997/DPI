@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javafx.concurrent.Task;
 import livepolice.models.LivePoliceReply;
 import livepolice.models.LivePoliceRequest;
 import message.CarReplyManager;
@@ -17,6 +20,7 @@ import message.MessageReceiver;
 import message.MessageSender;
 import observer.Observable;
 import observer.Observer;
+import util.TimeStamp;
 
 /**
  *
@@ -34,6 +38,8 @@ public class LivePoliceGateway implements Observer, Observable {
     private Map<LivePoliceRequest, String> correlations = new HashMap<>();
     private Map<String, CarReplyManager> resultsForCorrelationID = new HashMap<>();
     private int numberOfCars = 2000;
+    private ExecutorService exS = Executors.newFixedThreadPool(5);
+    private TimeStamp ts;
 
     public LivePoliceGateway(String senderTopic, String receiverTopic) {
         sender = new MessageSender("destination", senderTopic);
@@ -56,16 +62,33 @@ public class LivePoliceGateway implements Observer, Observable {
     }
 
     public void sendReply(LivePoliceReply reply, String correlationId) {
-        sender.sendMessage(serializer.ReplyToString(reply), correlationId);
+        Thread thread = new Thread() {
+            public void run() {
+                sender.sendMessage(serializer.ReplyToString(reply), correlationId);
+
+            }
+        };
+        thread.start();
     }
 
     public void initLiveScan(String correlationId) {
         resultsForCorrelationID.put(correlationId, new CarReplyManager(numberOfCars));
-        String licencePlate = "";
-        for (int i = 0; i < numberOfCars; i++) {
-            licencePlate = Integer.toString(i);
-            sendCar("Car;;" + licencePlate, correlationId);
-        }
+
+        ts = new TimeStamp();
+        ts.setBegin("init live scan");
+        
+        Thread thread = new Thread() {
+            public void run() {
+                String licencePlate = "";
+                for (int i = 0; i < numberOfCars; i++) {
+                    licencePlate = Integer.toString(i);
+                    sendCar("Car;;" + licencePlate, correlationId);
+                }
+            }
+        };
+        
+        exS.execute(thread);
+        //thread.start();
     }
 
     public void sendCar(String licencePlate, String correlationId) {
@@ -73,28 +96,36 @@ public class LivePoliceGateway implements Observer, Observable {
     }
 
     public void receiveCar(String content, String correlationId) {
-        CarReplyManager carReplyManager = resultsForCorrelationID.get(correlationId);
-        LivePoliceRequest request = null;
-        if (!carReplyManager.isFound()) {
-            for (Entry<LivePoliceRequest, String> entry : correlations.entrySet()) {
-                if (entry.getValue() == null ? correlationId == null : entry.getValue().equals(correlationId)) {
-                    request = entry.getKey();
-                    if (entry.getKey().getLicencePlate().equals(getCarLicencePlate(content))) {
-                        carReplyManager.newReply(new LivePoliceReply(true, "Maaskantje", "LocalMaaskantjeA"));
-                        notifyObservers(request, carReplyManager.getBestReply());
-                        sendReply(carReplyManager.getBestReply(), correlationId);
-                    } else {
-                        carReplyManager.newReply(new LivePoliceReply(false, "None", "None"));
+        Thread thread = new Thread() {
+            public void run() {
+                CarReplyManager carReplyManager = resultsForCorrelationID.get(correlationId);
+                LivePoliceRequest request = null;
+                if (!carReplyManager.isFound()) {
+                    for (Entry<LivePoliceRequest, String> entry : correlations.entrySet()) {
+                        if (entry.getValue() == null ? correlationId == null : entry.getValue().equals(correlationId)) {
+                            request = entry.getKey();
+                            if (entry.getKey().getLicencePlate().equals(getCarLicencePlate(content))) {
+                                carReplyManager.newReply(new LivePoliceReply(true, "Maaskantje", "LocalMaaskantjeA"));
+                                notifyObservers(request, carReplyManager.getBestReply());
+                                sendReply(carReplyManager.getBestReply(), correlationId);
+                            } else {
+                                carReplyManager.newReply(new LivePoliceReply(false, "None", "None"));
+                            }
+                        }
+                    }
+
+                    if (carReplyManager.isCompleted() && !carReplyManager.isFound()) {
+                        LivePoliceReply notFoundReply = new LivePoliceReply(false, "None", "None");
+                        ts.setEnd("end");
+                        System.out.println(ts.toString());
+                        sendReply(notFoundReply, correlationId);
+                        notifyObservers(request, notFoundReply);
                     }
                 }
             }
-
-            if (carReplyManager.isCompleted() && !carReplyManager.isFound()) {
-                LivePoliceReply notFoundReply = new LivePoliceReply(false, "None", "None");
-                sendReply(notFoundReply, correlationId);
-                notifyObservers(request, notFoundReply);
-            }
-        }
+        };
+        exS.execute(thread);
+        //thread.start();
     }
 
     public String getCarLicencePlate(String content) {
