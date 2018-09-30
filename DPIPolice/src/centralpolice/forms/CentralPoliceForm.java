@@ -12,6 +12,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import livepolice.models.LivePoliceReply;
 import localpolice.models.LocalPoliceReply;
 import localpolice.models.LocalPoliceRequest;
 import observer.Observer;
@@ -65,7 +66,6 @@ public class CentralPoliceForm extends JFrame implements Observer {
     }
 
     private JListLine getRequestReply(ClientRequest request) {
-
         for (int i = 0; i < listModel.getSize(); i++) {
             JListLine rr = listModel.get(i);
             if (rr.getClientRequest() == request) {
@@ -74,7 +74,7 @@ public class CentralPoliceForm extends JFrame implements Observer {
         }
 
         return null;
-    }
+    }   
 
     public void add(ClientRequest clientRequest) {
         listModel.addElement(new JListLine(clientRequest));
@@ -95,6 +95,14 @@ public class CentralPoliceForm extends JFrame implements Observer {
             list.repaint();
         }
     }
+    
+    public void add(ClientRequest clientRequest, LivePoliceReply livePoliceReply) {
+        JListLine rr = getRequestReply(clientRequest);
+        if (rr != null && livePoliceReply != null) {
+            rr.setLivePoliceReply(livePoliceReply);
+            list.repaint();
+        }
+    }
 
     @Override
     public void update(Object... args) {
@@ -104,8 +112,13 @@ public class CentralPoliceForm extends JFrame implements Observer {
         }
         else if (args.length == 2) {
             ClientRequest request = (ClientRequest) args[0];
-            LocalPoliceReply reply = (LocalPoliceReply) args[1];
-            add(request, reply);
+            if (args[1] instanceof LocalPoliceReply){
+                LocalPoliceReply reply = (LocalPoliceReply) args[1];
+                add(request, reply);
+            }else if (args[1] instanceof LivePoliceReply){
+                LivePoliceReply reply = (LivePoliceReply) args[1];
+                add(request, reply);
+            }
         }
     }
 }

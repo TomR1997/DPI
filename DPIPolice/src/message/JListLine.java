@@ -1,6 +1,8 @@
 package message;
 
 import client.models.ClientRequest;
+import livepolice.models.LivePoliceReply;
+import livepolice.models.LivePoliceRequest;
 import localpolice.models.LocalPoliceReply;
 import localpolice.models.LocalPoliceRequest;
 
@@ -9,6 +11,24 @@ public class JListLine {
     private ClientRequest clientRequest;
     private LocalPoliceRequest localPoliceRequest;
     private LocalPoliceReply localPoliceReply;
+    private LivePoliceRequest livePoliceRequest;
+    private LivePoliceReply livePoliceReply;
+
+    public LivePoliceRequest getLivePoliceRequest() {
+        return livePoliceRequest;
+    }
+
+    public void setLivePoliceRequest(LivePoliceRequest livePoliceRequest) {
+        this.livePoliceRequest = livePoliceRequest;
+    }
+
+    public LivePoliceReply getLivePoliceReply() {
+        return livePoliceReply;
+    }
+
+    public void setLivePoliceReply(LivePoliceReply livePoliceReply) {
+        this.livePoliceReply = livePoliceReply;
+    }
 
     public JListLine(ClientRequest clientRequest) {
         this.setClientRequest(clientRequest);
@@ -40,7 +60,7 @@ public class JListLine {
 
     @Override
     public String toString() {
-        return clientRequest.toString() + " || " + ((localPoliceReply != null) ? localPoliceReply.toString() : "waiting for reply...");
+        return clientRequest.toString() + " || " + (livePoliceReply != null ? livePoliceReply.toString() : ((localPoliceReply != null) ? localPoliceReply.toString() : "waiting for reply..."));
     }
 
 }

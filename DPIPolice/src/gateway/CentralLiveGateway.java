@@ -5,11 +5,10 @@
  */
 package gateway;
 
-import client.models.ClientReply;
-import client.models.ClientRequest;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import livepolice.models.LivePoliceReply;
+import livepolice.models.LivePoliceRequest;
 import message.MessageReceiver;
 import message.MessageSender;
 import observer.Observable;
@@ -19,47 +18,46 @@ import observer.Observer;
  *
  * @author Tomt
  */
-public class ClientGateway implements Observer, Observable {
+public class CentralLiveGateway implements Observer, Observable {
 
     private List<Observer> observers = new ArrayList<>();
-    private MessageReceiver receiver;
     private MessageSender sender;
+    private MessageReceiver receiver;
     private ISerializer serializer;
-    private HashMap<String, ClientRequest> correlations = new HashMap<>();
 
-    public ClientGateway(String senderTopic, String receiverTopic) {
-        receiver = new MessageReceiver("destination", receiverTopic);
+    public CentralLiveGateway(String receiverTopic, String senderTopic) {
         sender = new MessageSender("destination", senderTopic);
-        serializer = new ClientSerializer();
-
+        receiver = new MessageReceiver("destination", receiverTopic);
+        serializer = new LivePoliceSerializer();
+        
         receiver.addObserver(this);
     }
 
-    public void sendRequest(ClientRequest request) {
-        String correlationId = sender.sendMessage(serializer.RequestToString(request));
-        correlations.put(correlationId, request);
+    public void sendRequest(LivePoliceRequest request, String correlationId){
+        sender.sendMessage(serializer.RequestToString(request), correlationId);
     }
-
-    public void receiveReply(String content, String correlationId) {
-        ClientRequest request = correlations.get(correlationId);
-        ClientReply reply = (ClientReply) serializer.StringToReply(content);
-        notifyObservers(request, reply);
+    
+    public void receiveReply(String content, String correlationId){
+        LivePoliceReply reply = (LivePoliceReply) serializer.StringToReply(content);
+        notifyObservers(reply, correlationId);
     }
-
+    
     @Override
     public void update(Object... args) {
         String[] result = new String[]{args[0].toString(), args[1].toString()};
-        receiveReply(result[0], result[1]);
+        if(result[0].startsWith("Reply")){
+            receiveReply(result[0], result[1]);
+        }
     }
 
     @Override
     public void addObserver(Observer o) {
-        observers.add(o);
+        this.observers.add(o);
     }
 
     @Override
     public void removeObserver(Observer o) {
-        observers.remove(o);
+        this.observers.remove(o);
     }
 
     @Override
@@ -68,4 +66,5 @@ public class ClientGateway implements Observer, Observable {
             o.update(args);
         }
     }
+
 }

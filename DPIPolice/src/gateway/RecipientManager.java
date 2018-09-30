@@ -3,9 +3,10 @@ package gateway;
 import client.models.ClientReply;
 import client.models.ClientRequest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import livepolice.models.LivePoliceReply;
+import livepolice.models.LivePoliceRequest;
 import localpolice.models.LocalPoliceReply;
 import localpolice.models.LocalPoliceRequest;
 import message.LocalPoliceReplyManager;
@@ -24,13 +25,16 @@ public class RecipientManager implements Observable, Observer {
 
     private List<Recipient> recipients = new ArrayList<>();
     private CentralPoliceGateway gateway;
+    private CentralLiveGateway liveGateway;
 
     public RecipientManager() {
         this.receiver = new MessageReceiver("destination", "registration");
         gateway = new CentralPoliceGateway("clientRequest", "clientReply");
+        liveGateway = new CentralLiveGateway("livePoliceRequest", "livePoliceReply");
 
         receiver.addObserver(this);
         gateway.addObserver(this);
+        liveGateway.addObserver(this);
     }
 
     public void receiveRegistraion(String registration) {
@@ -56,7 +60,7 @@ public class RecipientManager implements Observable, Observer {
         }
         
         if (expectedResultCount == 0){
-            notifyObservers(correlations.get(correlationID), new LocalPoliceReply(false, "", "None"));
+            notifyObservers(correlations.get(correlationID), new LocalPoliceReply(false, "", "None", "None"));
             sendReplyToClient(new ClientReply(false, "None", "None"), correlationID);
             return;
         }
@@ -70,16 +74,25 @@ public class RecipientManager implements Observable, Observer {
         if(localPoliceReplyManager.isCompleted()){
             LocalPoliceReply bestReply = localPoliceReplyManager.getBestReply();
             if (bestReply == null){
-                //init livepolice
+                sendLivePoliceRequest(new LivePoliceRequest(reply.getLicencePlate()), correlationID);
             } else {
                 notifyObservers(correlations.get(correlationID), bestReply);
-                sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocation(), bestReply.getLocalPoliceId()), correlationID);
+                sendReplyToClient(new ClientReply(bestReply.isFound(), bestReply.getLocalPoliceId(), bestReply.getLocation()), correlationID);
             }
         }
     }
     
     public void sendReplyToClient(ClientReply reply, String correlationID){
         gateway.sendReply(reply, correlationID);
+    }
+    
+    public void sendLivePoliceRequest(LivePoliceRequest request, String correlationID){
+        liveGateway.sendRequest(request, correlationID);
+    }
+    
+    public void receiveLiveReply(LivePoliceReply reply, String correlationId){
+        notifyObservers(correlations.get(correlationId), reply);
+        sendReplyToClient(new ClientReply(reply.isFound(), reply.getLocalPoliceId(), reply.getLocation()), correlationId);
     }
 
     @Override
@@ -107,6 +120,9 @@ public class RecipientManager implements Observable, Observer {
             receiveRequest((ClientRequest) args[0], args[1].toString());
         } else if (args[0].toString().startsWith("Registration")) {
             receiveRegistraion(args[0].toString());
+        } else if (args[0] instanceof LivePoliceReply){
+            receiveLiveReply((LivePoliceReply) args[0], args[1].toString());
         }
     }
+
 }
